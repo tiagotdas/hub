@@ -1,0 +1,3325 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Central Operacional Contábil — Cofre & Dados de Clientes</title>
+  <style>
+    :root {
+      --bg-app: #0b101b;
+      --bg-panel: #111827;
+      --bg-card: #161f30;
+      --bg-card-hover: #1c273d;
+      --bg-input: #0d1320;
+      --bg-pill: #1f2937;
+      --border: #263248;
+      --border-strong: #374766;
+      --text-main: #f3f4f6;
+      --text-muted: #9ca3af;
+      --text-dim: #6b7280;
+      --accent: #3b82f6;
+      --accent-hover: #2563eb;
+      --accent-soft: rgba(59, 130, 246, 0.14);
+      --success: #10b981;
+      --success-soft: rgba(16, 185, 129, 0.15);
+      --warning: #f59e0b;
+      --warning-soft: rgba(245, 158, 11, 0.15);
+      --danger: #ef4444;
+      --danger-soft: rgba(239, 68, 68, 0.15);
+      --purple: #8b5cf6;
+      --purple-soft: rgba(139, 92, 246, 0.15);
+      --shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+      --radius: 10px;
+      --radius-sm: 6px;
+      --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Arial, sans-serif;
+      --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    }
+
+    html[data-theme="light"] {
+      --bg-app: #f1f5f9;
+      --bg-panel: #ffffff;
+      --bg-card: #f8fafc;
+      --bg-card-hover: #f1f5f9;
+      --bg-input: #ffffff;
+      --bg-pill: #e2e8f0;
+      --border: #cbd5e1;
+      --border-strong: #94a3b8;
+      --text-main: #0f172a;
+      --text-muted: #475569;
+      --text-dim: #64748b;
+      --accent: #2563eb;
+      --accent-hover: #1d4ed8;
+      --accent-soft: rgba(37, 99, 235, 0.1);
+      --shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+    }
+
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      background: var(--bg-app);
+      color: var(--text-main);
+      font-family: var(--font-sans);
+      font-size: 14px;
+      line-height: 1.45;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    button, input, select, textarea {
+      font-family: inherit;
+      font-size: inherit;
+      color: inherit;
+    }
+
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* Privacy Blur Mode */
+    body.privacy-mode .sensitive {
+      filter: blur(5px);
+      transition: filter 0.15s ease;
+      user-select: none;
+    }
+    body.privacy-mode .sensitive:hover {
+      filter: blur(2px);
+    }
+
+    /* Layout */
+    .app-shell {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* Top Header */
+    .topbar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 16px;
+      background: var(--bg-panel);
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+      flex-wrap: wrap;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      font-size: 15px;
+      letter-spacing: -0.01em;
+      margin-right: 4px;
+    }
+
+    .brand-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, var(--accent), var(--purple));
+      color: #fff;
+      display: grid;
+      place-items: center;
+      flex-shrink: 0;
+    }
+
+    .search-box {
+      position: relative;
+      flex: 1;
+      min-width: 240px;
+      max-width: 480px;
+    }
+
+    .search-box svg {
+      position: absolute;
+      left: 11px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-dim);
+      pointer-events: none;
+    }
+
+    .search-box input {
+      width: 100%;
+      padding: 8px 68px 8px 34px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--bg-input);
+      outline: none;
+      transition: border-color 0.15s;
+    }
+
+    .search-box input:focus {
+      border-color: var(--accent);
+    }
+
+    .kbd-hint {
+      position: absolute;
+      right: 9px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 11px;
+      color: var(--text-dim);
+      background: var(--bg-pill);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 1px 6px;
+      pointer-events: none;
+    }
+
+    .topbar-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-left: auto;
+    }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 11px;
+      border-radius: 7px;
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+      color: var(--text-main);
+      cursor: pointer;
+      font-weight: 500;
+      font-size: 13px;
+      transition: background 0.15s, border-color 0.15s, transform 0.05s;
+      white-space: nowrap;
+    }
+
+    .btn:hover { background: var(--bg-card-hover); border-color: var(--border-strong); }
+    .btn:active { transform: translateY(1px); }
+
+    .btn-primary {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+    }
+    .btn-primary:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
+
+    .btn-success { background: var(--success-soft); border-color: rgba(16,185,129,0.4); color: var(--success); }
+    .btn-warning { background: var(--warning-soft); border-color: rgba(245,158,11,0.4); color: var(--warning); }
+    .btn-danger { background: var(--danger-soft); border-color: rgba(239,68,68,0.4); color: var(--danger); }
+
+    .btn-sm { padding: 4px 8px; font-size: 12px; border-radius: 5px; }
+    .btn-xs { padding: 2px 6px; font-size: 11px; border-radius: 4px; }
+    .btn-icon { padding: 6px; }
+
+    .btn.active-toggle {
+      background: var(--accent-soft);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    /* Sub-navbar Views */
+    .nav-views {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      background: var(--bg-panel);
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+      overflow-x: auto;
+    }
+
+    .nav-tab {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 6px 12px;
+      border-radius: 7px;
+      border: 1px solid transparent;
+      background: transparent;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 13px;
+      white-space: nowrap;
+    }
+
+    .nav-tab:hover { background: var(--bg-card); color: var(--text-main); }
+    .nav-tab.active {
+      background: var(--accent-soft);
+      border-color: rgba(59, 130, 246, 0.35);
+      color: var(--accent);
+    }
+
+    .nav-badge {
+      font-size: 11px;
+      padding: 1px 6px;
+      border-radius: 999px;
+      background: var(--bg-pill);
+      color: var(--text-muted);
+    }
+    .nav-badge.danger { background: var(--danger-soft); color: var(--danger); }
+    .nav-badge.warning { background: var(--warning-soft); color: var(--warning); }
+
+    /* Demo Banner */
+    .demo-banner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 8px 16px;
+      background: var(--accent-soft);
+      border-bottom: 1px solid rgba(59, 130, 246, 0.3);
+      font-size: 13px;
+      flex-shrink: 0;
+    }
+
+    /* Main Content */
+    .main-container {
+      flex: 1;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .view-section {
+      display: none;
+      flex: 1;
+      overflow: hidden;
+    }
+    .view-section.active {
+      display: flex;
+    }
+
+    /* Master-Detail View */
+    .master-pane {
+      width: 350px;
+      min-width: 280px;
+      max-width: 420px;
+      border-right: 1px solid var(--border);
+      background: var(--bg-panel);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .filter-bar {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .filter-pills {
+      display: flex;
+      gap: 5px;
+      flex-wrap: wrap;
+    }
+
+    .pill {
+      padding: 3px 9px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+      color: var(--text-muted);
+      font-size: 12px;
+      cursor: pointer;
+    }
+    .pill.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+    }
+
+    .client-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .client-item {
+      padding: 10px 12px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+      cursor: pointer;
+      transition: background 0.12s, border-color 0.12s;
+    }
+
+    .client-item:hover { background: var(--bg-card-hover); border-color: var(--border-strong); }
+    .client-item.selected {
+      background: var(--accent-soft);
+      border-color: var(--accent);
+    }
+
+    .client-item-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 6px;
+      margin-bottom: 4px;
+    }
+
+    .client-item-name {
+      font-weight: 600;
+      font-size: 13.5px;
+      line-height: 1.25;
+      word-break: break-word;
+    }
+
+    .client-item-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    .match-hint {
+      margin-top: 5px;
+      font-size: 11px;
+      color: var(--accent);
+      background: var(--accent-soft);
+      padding: 2px 6px;
+      border-radius: 4px;
+      display: inline-block;
+    }
+
+    /* Detail Pane */
+    .detail-pane {
+      flex: 1;
+      overflow-y: auto;
+      padding: 18px 22px 48px;
+      background: var(--bg-app);
+    }
+
+    .detail-header {
+      background: var(--bg-panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px 18px;
+      margin-bottom: 14px;
+    }
+
+    .detail-title-row {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .detail-title {
+      margin: 0;
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+    }
+
+    .detail-subtitle {
+      color: var(--text-muted);
+      font-size: 13px;
+      margin-top: 3px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    /* Badges */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 11.5px;
+      font-weight: 600;
+      background: var(--bg-pill);
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+    }
+    .badge-accent { background: var(--accent-soft); color: var(--accent); border-color: rgba(59,130,246,0.3); }
+    .badge-success { background: var(--success-soft); color: var(--success); border-color: rgba(16,185,129,0.3); }
+    .badge-warning { background: var(--warning-soft); color: var(--warning); border-color: rgba(245,158,11,0.35); }
+    .badge-danger { background: var(--danger-soft); color: var(--danger); border-color: rgba(239,68,68,0.35); }
+    .badge-purple { background: var(--purple-soft); color: var(--purple); border-color: rgba(139,92,246,0.35); }
+
+    /* Quick Strip */
+    .quick-strip {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(195px, 1fr));
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    .quick-chip {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .quick-chip-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--text-dim);
+      font-weight: 600;
+    }
+
+    .quick-chip-val {
+      font-family: var(--font-mono);
+      font-size: 13px;
+      font-weight: 600;
+      word-break: break-all;
+    }
+
+    .quick-chip-actions {
+      display: flex;
+      gap: 4px;
+      margin-top: 3px;
+      flex-wrap: wrap;
+    }
+
+    /* Section Cards */
+    .section-card {
+      background: var(--bg-panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px 16px;
+      margin-bottom: 14px;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .section-title {
+      margin: 0;
+      font-size: 14.5px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .items-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+      gap: 10px;
+    }
+
+    .data-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 11px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+
+    .data-card-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .data-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      font-size: 12.5px;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      padding: 5px 8px;
+    }
+
+    .data-row-label {
+      color: var(--text-dim);
+      font-size: 11.5px;
+      flex-shrink: 0;
+    }
+
+    .data-row-value {
+      font-family: var(--font-mono);
+      font-size: 12.5px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      flex: 1;
+      text-align: right;
+    }
+
+    .mono { font-family: var(--font-mono); }
+
+    /* Standalone Full Views (Vault, Radar, Capture) */
+    .full-view {
+      flex: 1;
+      overflow-y: auto;
+      padding: 18px 24px 48px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      gap: 10px;
+    }
+
+    .stat-card {
+      background: var(--bg-panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 12px 14px;
+    }
+    .stat-label { font-size: 12px; color: var(--text-muted); }
+    .stat-val { font-size: 24px; font-weight: 700; margin-top: 2px; }
+
+    /* Tables */
+    .table-wrap {
+      background: var(--bg-panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    th, td {
+      padding: 10px 12px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+
+    th {
+      background: var(--bg-card);
+      color: var(--text-muted);
+      font-size: 11.5px;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      font-weight: 600;
+    }
+
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: var(--bg-card-hover); }
+
+    /* Capture View */
+    .capture-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .capture-textarea {
+      width: 100%;
+      min-height: 300px;
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--bg-input);
+      resize: vertical;
+      font-family: var(--font-mono);
+      font-size: 13px;
+      outline: none;
+    }
+    .capture-textarea:focus { border-color: var(--accent); }
+
+    /* Modals */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.65);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      z-index: 1000;
+      backdrop-filter: blur(2px);
+    }
+    .modal-backdrop.open { display: flex; }
+
+    .modal {
+      width: 100%;
+      max-width: 720px;
+      max-height: 90vh;
+      background: var(--bg-panel);
+      border: 1px solid var(--border-strong);
+      border-radius: 12px;
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .modal-header {
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .modal-header h3 { margin: 0; font-size: 16px; }
+
+    .modal-body {
+      padding: 16px 18px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .modal-footer {
+      padding: 12px 18px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      background: var(--bg-card);
+    }
+
+    /* Form Grid */
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .form-group.full { grid-column: 1 / -1; }
+
+    .form-group label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .form-control {
+      padding: 8px 10px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: var(--bg-input);
+      outline: none;
+      width: 100%;
+    }
+    .form-control:focus { border-color: var(--accent); }
+
+    /* Lock Screen */
+    .lock-overlay {
+      position: fixed;
+      inset: 0;
+      background: var(--bg-app);
+      z-index: 2000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .lock-overlay.open { display: flex; }
+
+    .lock-box {
+      width: 100%;
+      max-width: 400px;
+      background: var(--bg-panel);
+      border: 1px solid var(--border-strong);
+      border-radius: 14px;
+      padding: 24px;
+      box-shadow: var(--shadow);
+      text-align: center;
+    }
+
+    /* Toast */
+    .toast-container {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 3000;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      pointer-events: none;
+    }
+
+    .toast {
+      background: #111827;
+      color: #f9fafb;
+      border: 1px solid var(--accent);
+      border-left: 4px solid var(--accent);
+      padding: 10px 14px;
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      font-size: 13px;
+      font-weight: 500;
+      animation: slideIn 0.18s ease-out;
+    }
+    .toast.success { border-color: var(--success); border-left-color: var(--success); }
+    .toast.warning { border-color: var(--warning); border-left-color: var(--warning); }
+    .toast.danger { border-color: var(--danger); border-left-color: var(--danger); }
+
+    @keyframes slideIn {
+      from { transform: translateY(12px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    .empty-state {
+      padding: 40px 20px;
+      text-align: center;
+      color: var(--text-muted);
+      background: var(--bg-panel);
+      border: 1px dashed var(--border-strong);
+      border-radius: var(--radius);
+    }
+
+    @media (max-width: 900px) {
+      .view-section.active { flex-direction: column; overflow-y: auto; }
+      .master-pane { width: 100%; max-width: none; max-height: 40vh; border-right: none; border-bottom: 1px solid var(--border); }
+      .capture-grid, .form-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <!-- TOP BAR -->
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-icon" title="Central Operacional Contábil">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        </div>
+        <div>
+          <div>Central Contábil</div>
+          <div style="font-size:11px; color:var(--text-dim); font-weight:500;">Cofre Operacional Local</div>
+        </div>
+      </div>
+
+      <div class="search-box">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input id="globalSearch" type="text" placeholder="Buscar cliente, CNPJ, CPF, IE, sócio ou portal..." autocomplete="off" />
+        <span class="kbd-hint">Ctrl+K</span>
+      </div>
+
+      <div class="topbar-actions">
+        <button id="btnCopyFormatToggle" class="btn" title="Alterna o formato padrão ao copiar CNPJ/CPF">
+          <span id="copyFormatLabel">Doc: Só Números</span>
+        </button>
+        <button id="btnPrivacy" class="btn" title="Ocultar dados sensíveis na tela (Alt+P)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+          Privacidade
+        </button>
+        <button id="btnTheme" class="btn btn-icon" title="Alternar Tema Claro/Escuro">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        </button>
+        <button id="btnSecurity" class="btn" title="Configurar Senha Mestra / Criptografia AES-GCM (Alt+L)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          <span id="securityBtnLabel">Cofre</span>
+        </button>
+        <button id="btnBackupMenu" class="btn" title="Backup JSON, Importar e Exportar CSV">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Backup
+        </button>
+        <button id="btnNewClient" class="btn btn-primary">
+          + Novo Cliente
+        </button>
+      </div>
+    </header>
+
+    <!-- NAVIGATION TABS -->
+    <nav class="nav-views">
+      <button class="nav-tab active" data-view="clients">
+        Painel Operacional <span class="nav-badge" id="badgeClientsCount">0</span>
+      </button>
+      <button class="nav-tab" data-view="vault">
+        Cofre Geral de Senhas <span class="nav-badge" id="badgeVaultCount">0</span>
+      </button>
+      <button class="nav-tab" data-view="radar">
+        Radar de Certificados & Procurações <span class="nav-badge" id="badgeRadarAlert">0</span>
+      </button>
+      <button class="nav-tab" data-view="capture">
+        Captura Rápida (Colar Texto Solto)
+      </button>
+    </nav>
+
+    <!-- DEMO BANNER -->
+    <div id="demoBanner" class="demo-banner" style="display:none;">
+      <div>
+        <strong>Modo Demonstração:</strong> Você está vendo 3 clientes fictícios de exemplo para testar os atalhos e recursos. Tudo fica salvo localmente no seu navegador (<code>localStorage</code>).
+      </div>
+      <div style="display:flex; gap:8px;">
+        <button id="btnClearDemo" class="btn btn-sm btn-warning">Limpar Dados de Exemplo</button>
+        <button id="btnDismissBanner" class="btn btn-sm">Ocultar</button>
+      </div>
+    </div>
+
+    <!-- MAIN CONTAINER -->
+    <main class="main-container">
+      <!-- VIEW 1: CLIENTS MASTER-DETAIL -->
+      <section id="view-clients" class="view-section active">
+        <aside class="master-pane">
+          <div class="filter-bar">
+            <div class="filter-pills" id="regimeFilters">
+              <button class="pill active" data-regime="ALL">Todos</button>
+              <button class="pill" data-regime="FAV">⭐ Favoritos</button>
+              <button class="pill" data-regime="Simples Nacional">Simples</button>
+              <button class="pill" data-regime="Lucro Presumido">Presumido</button>
+              <button class="pill" data-regime="Lucro Real">Real</button>
+              <button class="pill" data-regime="MEI">MEI</button>
+              <button class="pill" data-regime="PF / Autônomo">PF</button>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center; font-size:12px; color:var(--text-dim);">
+              <span id="listCountInfo">0 clientes exibidos</span>
+              <select id="statusFilter" class="form-control" style="width:auto; padding:3px 6px; font-size:12px;">
+                <option value="ALL">Status: Todos</option>
+                <option value="Ativo">Ativos</option>
+                <option value="Em Constituição">Em Constituição</option>
+                <option value="Paralisado">Paralisados</option>
+                <option value="Baixado">Baixados</option>
+              </select>
+            </div>
+          </div>
+          <div class="client-list" id="clientList"></div>
+        </aside>
+
+        <div class="detail-pane" id="clientDetailPane"></div>
+      </section>
+
+      <!-- VIEW 2: GLOBAL PASSWORD VAULT -->
+      <section id="view-vault" class="view-section">
+        <div class="full-view">
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+            <div>
+              <h2 style="margin:0; font-size:18px;">Cofre Geral de Senhas e Portais</h2>
+              <div style="color:var(--text-muted); font-size:13px;">Todas as credenciais de todos os clientes em um único painel pesquisável.</div>
+            </div>
+            <div style="display:flex; gap:8px; flex-wrap:wrap;">
+              <select id="vaultCategoryFilter" class="form-control" style="width:220px;">
+                <option value="ALL">Todas as Categorias</option>
+                <option>Prefeitura / NFS-e</option>
+                <option>SEFAZ / Estadual</option>
+                <option>Gov.br</option>
+                <option>e-CAC</option>
+                <option>Simples Nacional</option>
+                <option>FGTS Digital / Conectividade</option>
+                <option>eSocial</option>
+                <option>Junta Comercial</option>
+                <option>Sistema / ERP</option>
+                <option>Banco</option>
+                <option>Outro</option>
+              </select>
+              <input id="vaultSearchInput" type="text" class="form-control" style="width:240px;" placeholder="Filtrar portal ou usuário..." />
+            </div>
+          </div>
+          <div class="table-wrap" id="vaultTableWrap"></div>
+        </div>
+      </section>
+
+      <!-- VIEW 3: CERTIFICATES RADAR -->
+      <section id="view-radar" class="view-section">
+        <div class="full-view">
+          <div>
+            <h2 style="margin:0; font-size:18px;">Radar de Certificados Digitais & Procurações</h2>
+            <div style="color:var(--text-muted); font-size:13px;">Acompanhe vencimentos e copie senhas PIN/PUK ou CNPJ do titular rapidamente.</div>
+          </div>
+          <div class="stats-row" id="radarStats"></div>
+          <div class="table-wrap" id="radarTableWrap"></div>
+        </div>
+      </section>
+
+      <!-- VIEW 4: SMART CAPTURE -->
+      <section id="view-capture" class="view-section">
+        <div class="full-view">
+          <div>
+            <h2 style="margin:0; font-size:18px;">Captura Rápida Inteligente (Colar Texto Solto)</h2>
+            <div style="color:var(--text-muted); font-size:13px;">
+              Cole abaixo textos copiados de e-mails, WhatsApp, contratos sociais ou planilhas antigas. O sistema extrai automaticamente CNPJs, CPFs, Inscrições, E-mails, Telefones, Datas e possíveis senhas para você salvar em segundos.
+            </div>
+          </div>
+          <div class="capture-grid">
+            <div class="section-card" style="margin:0;">
+              <div class="section-header">
+                <h3 class="section-title">1. Cole os dados brutos aqui</h3>
+                <div style="display:flex; gap:6px;">
+                  <button id="btnCaptureSample" class="btn btn-sm">Exemplo</button>
+                  <button id="btnCaptureClear" class="btn btn-sm">Limpar</button>
+                </div>
+              </div>
+              <textarea id="captureInput" class="capture-textarea" placeholder="Exemplo:&#10;Empresa Alfa Serviços Ltda&#10;CNPJ: 12.345.678/0001-90 | IE: 110.042.490.114 | IM: 4.556.778-9&#10;Código Simples: 998877665544&#10;Prefeitura usuário: alfa.nfse senha: Alfa@2026&#10;Sócio: Marcos Silva CPF 123.456.789-00 Nasc: 15/04/1985 gov.br: Marcos#85&#10;Certificado A1 vence 20/12/2026 PIN: 123456"></textarea>
+              <div style="margin-top:10px; display:flex; justify-content:flex-end;">
+                <button id="btnAnalyzeCapture" class="btn btn-primary">Analisar e Extrair Dados</button>
+              </div>
+            </div>
+
+            <div class="section-card" style="margin:0;">
+              <div class="section-header">
+                <h3 class="section-title">2. Dados Detectados</h3>
+                <span id="captureCountBadge" class="badge">Aguardando texto</span>
+              </div>
+              <div id="captureResults">
+                <div class="empty-state" style="padding:28px;">
+                  Cole um texto ao lado e clique em <strong>Analisar e Extrair Dados</strong>.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- GENERIC MODAL -->
+  <div id="modalBackdrop" class="modal-backdrop">
+    <div class="modal" role="dialog" aria-modal="true">
+      <div class="modal-header">
+        <h3 id="modalTitle">Modal</h3>
+        <button id="modalCloseBtn" class="btn btn-sm">✕</button>
+      </div>
+      <div class="modal-body" id="modalBody"></div>
+      <div class="modal-footer" id="modalFooter"></div>
+    </div>
+  </div>
+
+  <!-- LOCK SCREEN OVERLAY -->
+  <div id="lockOverlay" class="lock-overlay">
+    <div class="lock-box">
+      <div class="brand-icon" style="width:48px; height:48px; margin:0 auto 12px;">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      </div>
+      <h2 style="margin:0 0 6px;">Cofre Contábil Bloqueado</h2>
+      <p style="margin:0 0 16px; color:var(--text-muted); font-size:13px;">
+        Os dados estão criptografados com AES-256-GCM no seu navegador. Digite sua Senha Mestra para desbloquear.
+      </p>
+      <form id="unlockForm" style="display:flex; flex-direction:column; gap:10px;">
+        <input id="unlockPasswordInput" type="password" class="form-control" placeholder="Senha Mestra" autofocus required />
+        <div id="unlockError" style="color:var(--danger); font-size:12px; display:none;">Senha incorreta. Tente novamente.</div>
+        <button type="submit" class="btn btn-primary" style="justify-content:center; padding:9px;">Desbloquear Cofre</button>
+      </form>
+      <div style="margin-top:14px; font-size:11.5px; color:var(--text-dim);">
+        Caso esqueça a senha mestra, você pode importar um backup JSON ou limpar o cofre.
+      </div>
+    </div>
+  </div>
+
+  <!-- TOASTS -->
+  <div id="toastContainer" class="toast-container"></div>
+
+  <input id="hiddenFileInput" type="file" accept=".json,application/json" style="display:none;" />
+
+  <script>
+    (() => {
+      "use strict";
+
+      const STORAGE_KEY = "antigravity_central_contabil_v1";
+      const CRYPTO_KEY = "antigravity_central_contabil_crypto_v1";
+      const SETTINGS_KEY = "antigravity_central_contabil_settings_v1";
+
+      // ---------- UTILITIES ----------
+      const uid = () => (crypto && crypto.randomUUID)
+        ? crypto.randomUUID()
+        : "id-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 8);
+
+      const escapeHtml = (str) => {
+        if (str === null || str === undefined) return "";
+        return String(str)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#39;");
+      };
+
+      const onlyDigits = (str) => String(str || "").replace(/\D+/g, "");
+
+      const formatCnpjCpf = (val) => {
+        const d = onlyDigits(val);
+        if (d.length === 14) {
+          return d.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})$/, "$1.$2.$3/$4-$5");
+        }
+        if (d.length === 11) {
+          return d.replace(/^(\d{3})(\d{3})(\d{3})(\d{2})$/, "$1.$2.$3-$4");
+        }
+        return val || "";
+      };
+
+      const formatDateBR = (iso) => {
+        if (!iso) return "";
+        const m = String(iso).match(/^(\d{4})-(\d{2})-(\d{2})/);
+        if (m) return `${m[3]}/${m[2]}/${m[1]}`;
+        return iso;
+      };
+
+      const daysUntil = (isoDate) => {
+        if (!isoDate) return null;
+        const m = String(isoDate).match(/^(\d{4})-(\d{2})-(\d{2})/);
+        if (!m) return null;
+        const target = new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
+        const now = new Date();
+        const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        return Math.round((target - today) / (1000 * 60 * 60 * 24));
+      };
+
+      const certStatusInfo = (isoDate) => {
+        const diff = daysUntil(isoDate);
+        if (diff === null) return { label: "Sem validade", cls: "badge", days: 99999, state: "none" };
+        if (diff < 0) return { label: `Vencido há ${Math.abs(diff)}d`, cls: "badge badge-danger", days: diff, state: "expired" };
+        if (diff === 0) return { label: "Vence HOJE", cls: "badge badge-danger", days: 0, state: "soon" };
+        if (diff <= 30) return { label: `Vence em ${diff}d`, cls: "badge badge-warning", days: diff, state: "soon" };
+        if (diff <= 60) return { label: `Vence em ${diff}d`, cls: "badge badge-accent", days: diff, state: "warn60" };
+        return { label: `Válido (${diff}d)`, cls: "badge badge-success", days: diff, state: "ok" };
+      };
+
+      function showToast(msg, type = "info") {
+        const container = document.getElementById("toastContainer");
+        const el = document.createElement("div");
+        el.className = `toast ${type}`;
+        el.textContent = msg;
+        container.appendChild(el);
+        setTimeout(() => {
+          el.style.opacity = "0";
+          el.style.transition = "opacity 0.2s";
+          setTimeout(() => el.remove(), 220);
+        }, 2400);
+      }
+
+      async function copyText(text, label = "Valor") {
+        if (!text && text !== 0) {
+          showToast(`${label} está vazio.`, "warning");
+          return;
+        }
+        const str = String(text);
+        try {
+          if (navigator.clipboard && window.isSecureContext) {
+            await navigator.clipboard.writeText(str);
+          } else {
+            throw new Error("Fallback");
+          }
+        } catch {
+          const ta = document.createElement("textarea");
+          ta.value = str;
+          ta.style.position = "fixed";
+          ta.style.left = "-9999px";
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand("copy");
+          ta.remove();
+        }
+        const preview = str.length > 26 ? str.slice(0, 26) + "..." : str;
+        showToast(`Copiado (${label}): ${preview}`, "success");
+      }
+
+      function copyDocSmart(rawDoc, label = "Documento", forceClean = null) {
+        if (!rawDoc) return showToast(`${label} não preenchido.`, "warning");
+        const useClean = forceClean !== null ? forceClean : state.settings.defaultCopyClean;
+        const val = useClean ? onlyDigits(rawDoc) : formatCnpjCpf(rawDoc);
+        copyText(val || rawDoc, `${label} ${useClean ? "(Só Números)" : "(Formatado)"}`);
+      }
+
+      // ---------- CRYPTO (OPTIONAL MASTER PASSWORD) ----------
+      let activeMasterPassword = null;
+
+      async function deriveAesKey(password, saltBytes) {
+        const enc = new TextEncoder();
+        const keyMaterial = await crypto.subtle.importKey(
+          "raw",
+          enc.encode(password),
+          "PBKDF2",
+          false,
+          ["deriveKey"]
+        );
+        return crypto.subtle.deriveKey(
+          {
+            name: "PBKDF2",
+            salt: saltBytes,
+            iterations: 150000,
+            hash: "SHA-256"
+          },
+          keyMaterial,
+          { name: "AES-GCM", length: 256 },
+          false,
+          ["encrypt", "decrypt"]
+        );
+      }
+
+      function bufToB64(buf) {
+        const bytes = new Uint8Array(buf);
+        let bin = "";
+        for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
+        return btoa(bin);
+      }
+
+      function b64ToBuf(b64) {
+        const bin = atob(b64);
+        const bytes = new Uint8Array(bin.length);
+        for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+        return bytes;
+      }
+
+      async function encryptState(plainObj, password) {
+        const salt = crypto.getRandomValues(new Uint8Array(16));
+        const iv = crypto.getRandomValues(new Uint8Array(12));
+        const key = await deriveAesKey(password, salt);
+        const data = new TextEncoder().encode(JSON.stringify(plainObj));
+        const cipher = await crypto.subtle.encrypt({ name: "AES-GCM", iv }, key, data);
+        return {
+          encrypted: true,
+          salt: bufToB64(salt),
+          iv: bufToB64(iv),
+          cipher: bufToB64(cipher)
+        };
+      }
+
+      async function decryptState(payload, password) {
+        const salt = b64ToBuf(payload.salt);
+        const iv = b64ToBuf(payload.iv);
+        const cipher = b64ToBuf(payload.cipher);
+        const key = await deriveAesKey(password, salt);
+        const plain = await crypto.subtle.decrypt({ name: "AES-GCM", iv }, key, cipher);
+        return JSON.parse(new TextDecoder().decode(plain));
+      }
+
+      // ---------- DEMO DATA ----------
+      function buildDemoState() {
+        return {
+          version: 1,
+          isDemo: true,
+          demoBannerDismissed: false,
+          updatedAt: new Date().toISOString(),
+          lastBackupAt: null,
+          settings: {
+            defaultCopyClean: true,
+            privacyBlurMode: false,
+            theme: "dark"
+          },
+          clients: [
+            {
+              id: uid(),
+              favorite: true,
+              status: "Ativo",
+              type: "PJ",
+              razaoSocial: "Horizonte Comércio de Materiais Elétricos Ltda",
+              nomeFantasia: "Horizonte Elétrica",
+              codigoInterno: "1042",
+              documento: "34.567.890/0001-12",
+              regime: "Simples Nacional",
+              inscricaoEstadual: "112.345.678.110",
+              uf: "SP",
+              inscricaoMunicipal: "5.443.221-0",
+              nire: "35204455661",
+              cnaePrincipal: "4742-3/00 - Comércio varejista de material elétrico",
+              codigoSimples: "847291038475",
+              codigoEcac: "445566778899",
+              email: "fiscal@horizonteeletrica.com.br",
+              telefone: "(11) 98765-4321",
+              endereco: "Av. Paulista, 1400 - Bela Vista, São Paulo/SP",
+              pastaLink: "\\\\Servidor\\Clientes\\1042-Horizonte",
+              tags: ["Comércio", "Folha", "ICMS-ST"],
+              fiscalDp: {
+                possuiFuncionarios: "Sim (8 colaboradores)",
+                diaFechamentoFolha: "Dia 25",
+                fap: "1.0000",
+                rat: "2%",
+                fpas: "515",
+                sindicato: "Sindicato dos Comerciários SP",
+                aliquotaIss: "N/A (Anexo I)",
+                sistemaErp: "Bling ERP",
+                bancos: "Itaú Empresas / Banco Inter"
+              },
+              observacoes: "Cliente envia movimento de compras até dia 03. Atenção para NF de fora do estado (DIFAL/ST).",
+              socios: [
+                {
+                  id: uid(),
+                  nome: "Carlos Eduardo Almeida",
+                  qualificacao: "Sócio-Administrador",
+                  cpf: "321.654.987-00",
+                  dataNascimento: "1982-05-14",
+                  rg: "34.567.890-1 SSP/SP",
+                  tituloEleitor: "2233 4455 0108",
+                  reciboIrpf: "12.34.56.78.90-11",
+                  govBrSenha: "Carlos#Horizonte26",
+                  govBrNivel: "Ouro",
+                  participacao: "70%",
+                  obs: "Responsável pelas aprovações bancárias."
+                },
+                {
+                  id: uid(),
+                  nome: "Mariana Costa Almeida",
+                  qualificacao: "Sócia",
+                  cpf: "456.789.123-55",
+                  dataNascimento: "1986-11-22",
+                  rg: "41.222.333-4 SSP/SP",
+                  tituloEleitor: "",
+                  reciboIrpf: "98.76.54.32.10-22",
+                  govBrSenha: "Mari@Cost86",
+                  govBrNivel: "Prata",
+                  participacao: "30%",
+                  obs: ""
+                }
+              ],
+              credenciais: [
+                {
+                  id: uid(),
+                  categoria: "Prefeitura / NFS-e",
+                  portal: "Nota do Milhão - Prefeitura SP",
+                  url: "https://nfe.prefeitura.sp.gov.br",
+                  usuario: "34567890000112",
+                  senha: "Pref#SP2026!",
+                  segundoFatorOuCodigo: "CCM 54432210",
+                  obs: "Acesso principal via Senha Web ou e-CNPJ",
+                  updatedAt: new Date().toISOString()
+                },
+                {
+                  id: uid(),
+                  categoria: "SEFAZ / Estadual",
+                  portal: "Posto Fiscal Eletrônico (PFE SP)",
+                  url: "https://www3.fazenda.sp.gov.br",
+                  usuario: "PFE_HORIZ01",
+                  senha: "Sefaz*Eletrica88",
+                  segundoFatorOuCodigo: "IE 112345678110",
+                  obs: "Usar usuário do contador vinculado quando possível",
+                  updatedAt: new Date().toISOString()
+                },
+                {
+                  id: uid(),
+                  categoria: "Sistema / ERP",
+                  portal: "Bling ERP (Integração XML)",
+                  url: "https://www.bling.com.br",
+                  usuario: "contabilidade@horizonteeletrica.com.br",
+                  senha: "Bling@Fiscal99",
+                  segundoFatorOuCodigo: "",
+                  obs: "Baixar XMLs de entrada e saída todo dia 02",
+                  updatedAt: new Date().toISOString()
+                }
+              ],
+              certificados: [
+                {
+                  id: uid(),
+                  tipo: "e-CNPJ A1",
+                  titular: "Horizonte Comércio Ltda",
+                  senhaPin: "Horizonte2026",
+                  senhaPuk: "",
+                  vencimento: offsetDateISO(18),
+                  certificadoraOuLocal: "Certisign — Pasta Servidor/Certificados/1042.pfx",
+                  status: "Ativo",
+                  obs: "Renovar com 15 dias de antecedência!"
+                },
+                {
+                  id: uid(),
+                  tipo: "Procuração e-CAC",
+                  titular: "Escritório Contábil (Procurador)",
+                  senhaPin: "N/A (Acesso via e-CNPJ Escritório)",
+                  senhaPuk: "",
+                  vencimento: offsetDateISO(320),
+                  certificadoraOuLocal: "Portal e-CAC Receita Federal",
+                  status: "Ativo",
+                  obs: "Todos os poderes habilitados"
+                }
+              ],
+              camposExtras: [
+                { id: uid(), chave: "Código Acesso DTE-SP", valor: "DTE-994021", sensivel: false },
+                { id: uid(), chave: "Chave API Contador ERP", valor: "sk_live_horiz_882910aa", sensivel: true }
+              ]
+            },
+            {
+              id: uid(),
+              favorite: false,
+              status: "Ativo",
+              type: "PJ",
+              razaoSocial: "Vértice Engenharia e Projetos S/S Ltda",
+              nomeFantasia: "Vértice Engenharia",
+              codigoInterno: "1088",
+              documento: "45.678.912/0001-34",
+              regime: "Lucro Presumido",
+              inscricaoEstadual: "ISENTO",
+              uf: "MG",
+              inscricaoMunicipal: "0988776-1",
+              nire: "31209988771",
+              cnaePrincipal: "7112-0/00 - Serviços de engenharia",
+              codigoSimples: "",
+              codigoEcac: "112233445566",
+              email: "financeiro@verticeeng.com.br",
+              telefone: "(31) 3344-5566",
+              endereco: "Rua da Bahia, 900 - Centro, Belo Horizonte/MG",
+              pastaLink: "\\\\Servidor\\Clientes\\1088-Vertice",
+              tags: ["Serviços", "Retenções CSRF/IRRF", "ISS"],
+              fiscalDp: {
+                possuiFuncionarios: "Sim (3 colaboradores + 2 pró-labore)",
+                diaFechamentoFolha: "Dia 28",
+                fap: "0.9500",
+                rat: "1%",
+                fpas: "515",
+                sindicato: "SENGE-MG",
+                aliquotaIss: "2% (BH)",
+                sistemaErp: "Conta Azul",
+                bancos: "Banco do Brasil / Sicoob"
+              },
+              observacoes: "Emite NFS-e com retenção de 4,65% (CSRF) e 1,5% IRRF acima dos limites legais. Enviar guias até dia 15.",
+              socios: [
+                {
+                  id: uid(),
+                  nome: "Rafael Mendes Duarte",
+                  qualificacao: "Sócio-Administrador",
+                  cpf: "789.123.456-78",
+                  dataNascimento: "1979-08-03",
+                  rg: "MG-10.222.333",
+                  tituloEleitor: "0099 8877 0211",
+                  reciboIrpf: "55.44.33.22.11-00",
+                  govBrSenha: "Vertice@Eng79",
+                  govBrNivel: "Ouro",
+                  participacao: "100%",
+                  obs: ""
+                }
+              ],
+              credenciais: [
+                {
+                  id: uid(),
+                  categoria: "Prefeitura / NFS-e",
+                  portal: "BHISS Digital - Prefeitura BH",
+                  url: "https://bhissdigital.pbh.gov.br",
+                  usuario: "45678912000134",
+                  senha: "Bhiss#Vertice25",
+                  segundoFatorOuCodigo: "IM 09887761",
+                  obs: "",
+                  updatedAt: new Date().toISOString()
+                },
+                {
+                  id: uid(),
+                  categoria: "FGTS Digital / Conectividade",
+                  portal: "FGTS Digital",
+                  url: "https://fgtsdigital.sistema.gov.br",
+                  usuario: "Procuração via e-CNPJ Escritório",
+                  senha: "Sem senha própria (Procuração)",
+                  segundoFatorOuCodigo: "",
+                  obs: "Procuração ativa",
+                  updatedAt: new Date().toISOString()
+                }
+              ],
+              certificados: [
+                {
+                  id: uid(),
+                  tipo: "e-CNPJ A3",
+                  titular: "Vértice Engenharia Ltda",
+                  senhaPin: "448822",
+                  senhaPuk: "99887766",
+                  vencimento: offsetDateISO(-5),
+                  certificadoraOuLocal: "Token Safenet (Fica com o sócio Rafael)",
+                  status: "Ativo",
+                  obs: "ATENÇÃO: Token venceu há 5 dias, cobrar renovação urgente do sócio!"
+                }
+              ],
+              camposExtras: [
+                { id: uid(), chave: "Registro CREA-MG", valor: "MG-00091822-PJ", sensivel: false }
+              ]
+            },
+            {
+              id: uid(),
+              favorite: false,
+              status: "Ativo",
+              type: "MEI",
+              razaoSocial: "51.234.567 JULIANA FERREIRA SANTOS",
+              nomeFantasia: "Studio Juliana Design",
+              codigoInterno: "2015",
+              documento: "51.234.567/0001-88",
+              regime: "MEI",
+              inscricaoEstadual: "",
+              uf: "RJ",
+              inscricaoMunicipal: "123.456-7",
+              nire: "",
+              cnaePrincipal: "7410-2/99 - Atividades de design",
+              codigoSimples: "334455667788",
+              codigoEcac: "",
+              email: "juliana@studiodesign.com",
+              telefone: "(21) 99988-7766",
+              endereco: "Rua Visconde de Pirajá, 300 - Rio de Janeiro/RJ",
+              pastaLink: "",
+              tags: ["MEI", "Serviços"],
+              fiscalDp: {
+                possuiFuncionarios: "Não",
+                diaFechamentoFolha: "-",
+                fap: "-",
+                rat: "-",
+                fpas: "-",
+                sindicato: "-",
+                aliquotaIss: "Fixo DAS-MEI",
+                sistemaErp: "Emissor Nacional NFS-e",
+                bancos: "Nubank PJ"
+              },
+              observacoes: "Enviar DAS-MEI todo dia 10 pelo WhatsApp. Monitorar limite anual de R$ 81 mil.",
+              socios: [
+                {
+                  id: uid(),
+                  nome: "Juliana Ferreira Santos",
+                  qualificacao: "Titular MEI",
+                  cpf: "222.333.444-55",
+                  dataNascimento: "1993-02-19",
+                  rg: "25.111.222-8 DETRAN/RJ",
+                  tituloEleitor: "",
+                  reciboIrpf: "",
+                  govBrSenha: "JuDesign@93",
+                  govBrNivel: "Prata",
+                  participacao: "100%",
+                  obs: "Usa Gov.br para emitir NFS-e Nacional"
+                }
+              ],
+              credenciais: [
+                {
+                  id: uid(),
+                  categoria: "Prefeitura / NFS-e",
+                  portal: "Portal Nacional NFS-e (MEI)",
+                  url: "https://www.nfse.gov.br/EmissorNacional",
+                  usuario: "22233344455",
+                  senha: "JuDesign@93",
+                  segundoFatorOuCodigo: "Gov.br",
+                  obs: "Mesma senha do Gov.br",
+                  updatedAt: new Date().toISOString()
+                }
+              ],
+              certificados: [],
+              camposExtras: []
+            }
+          ]
+        };
+      }
+
+      function offsetDateISO(daysDelta) {
+        const d = new Date();
+        d.setDate(d.getDate() + daysDelta);
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, "0");
+        const day = String(d.getDate()).padStart(2, "0");
+        return `${y}-${m}-${day}`;
+      }
+
+      // ---------- STATE MANAGEMENT ----------
+      let state = null;
+      let uiState = {
+        activeView: "clients",
+        selectedClientId: null,
+        searchQuery: "",
+        regimeFilter: "ALL",
+        statusFilter: "ALL",
+        revealedSecrets: new Set(),
+        vaultCategory: "ALL",
+        vaultSearch: ""
+      };
+
+      async function saveState() {
+        state.updatedAt = new Date().toISOString();
+        localStorage.setItem(SETTINGS_KEY, JSON.stringify(state.settings));
+
+        if (activeMasterPassword) {
+          const encryptedPayload = await encryptState(state, activeMasterPassword);
+          localStorage.setItem(CRYPTO_KEY, JSON.stringify(encryptedPayload));
+          localStorage.removeItem(STORAGE_KEY);
+        } else {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        }
+      }
+
+      function loadInitialStateSync() {
+        const encryptedRaw = localStorage.getItem(CRYPTO_KEY);
+        if (encryptedRaw) {
+          // Locked vault mode
+          try {
+            const settingsRaw = localStorage.getItem(SETTINGS_KEY);
+            const savedSettings = settingsRaw ? JSON.parse(settingsRaw) : {};
+            applySettingsToDOM(savedSettings);
+          } catch {}
+          document.getElementById("lockOverlay").classList.add("open");
+          return false;
+        }
+
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) {
+          try {
+            state = JSON.parse(raw);
+          } catch {
+            state = buildDemoState();
+          }
+        } else {
+          state = buildDemoState();
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        }
+        if (!state.settings) {
+          state.settings = { defaultCopyClean: true, privacyBlurMode: false, theme: "dark" };
+        }
+        if (!Array.isArray(state.clients)) state.clients = [];
+        return true;
+      }
+
+      function applySettingsToDOM(settings) {
+        const s = settings || state?.settings || {};
+        document.documentElement.setAttribute("data-theme", s.theme === "light" ? "light" : "dark");
+        document.body.classList.toggle("privacy-mode", !!s.privacyBlurMode);
+
+        const copyBtn = document.getElementById("btnCopyFormatToggle");
+        const copyLbl = document.getElementById("copyFormatLabel");
+        if (copyLbl) {
+          copyLbl.textContent = s.defaultCopyClean !== false ? "Doc: Só Números" : "Doc: Formatado";
+        }
+        if (copyBtn) {
+          copyBtn.classList.toggle("active-toggle", s.defaultCopyClean !== false);
+        }
+
+        const privBtn = document.getElementById("btnPrivacy");
+        if (privBtn) privBtn.classList.toggle("active-toggle", !!s.privacyBlurMode);
+
+        const secLbl = document.getElementById("securityBtnLabel");
+        if (secLbl) {
+          secLbl.textContent = (activeMasterPassword || localStorage.getItem(CRYPTO_KEY))
+            ? "Cofre AES Ativo"
+            : "Proteger Cofre";
+        }
+      }
+
+      // ---------- SEARCH & FILTERING ----------
+      function getClientMatchInfo(client, q) {
+        if (!q) return { matched: true, hint: "" };
+        const nq = q.toLowerCase().trim();
+        const dq = onlyDigits(q);
+
+        if ((client.razaoSocial || "").toLowerCase().includes(nq)) return { matched: true, hint: "" };
+        if ((client.nomeFantasia || "").toLowerCase().includes(nq)) return { matched: true, hint: "" };
+        if ((client.codigoInterno || "").toLowerCase().includes(nq)) return { matched: true, hint: `Cód: ${client.codigoInterno}` };
+        if ((client.documento || "").toLowerCase().includes(nq) || (dq && onlyDigits(client.documento).includes(dq))) {
+          return { matched: true, hint: "" };
+        }
+        if ((client.inscricaoEstadual || "").toLowerCase().includes(nq) || (dq && onlyDigits(client.inscricaoEstadual).includes(dq))) {
+          return { matched: true, hint: "Encontrado na Inscrição Estadual" };
+        }
+        if ((client.inscricaoMunicipal || "").toLowerCase().includes(nq) || (dq && onlyDigits(client.inscricaoMunicipal).includes(dq))) {
+          return { matched: true, hint: "Encontrado na Inscrição Municipal" };
+        }
+        if ((client.tags || []).some(t => t.toLowerCase().includes(nq))) {
+          return { matched: true, hint: "Encontrado nas Tags" };
+        }
+        for (const s of (client.socios || [])) {
+          if ((s.nome || "").toLowerCase().includes(nq) || (dq && onlyDigits(s.cpf).includes(dq))) {
+            return { matched: true, hint: `Sócio: ${s.nome}` };
+          }
+        }
+        for (const c of (client.credenciais || [])) {
+          if ((c.portal || "").toLowerCase().includes(nq) || (c.categoria || "").toLowerCase().includes(nq) || (c.usuario || "").toLowerCase().includes(nq)) {
+            return { matched: true, hint: `Portal: ${c.portal}` };
+          }
+        }
+        for (const cert of (client.certificados || [])) {
+          if ((cert.tipo || "").toLowerCase().includes(nq) || (cert.titular || "").toLowerCase().includes(nq)) {
+            return { matched: true, hint: `Certificado: ${cert.tipo}` };
+          }
+        }
+        return { matched: false, hint: "" };
+      }
+
+      function getWorstCertAlert(client) {
+        let worst = null;
+        for (const cert of (client.certificados || [])) {
+          const info = certStatusInfo(cert.vencimento);
+          if (info.state === "expired" || info.state === "soon") {
+            if (!worst || info.days < worst.days) worst = info;
+          }
+        }
+        return worst;
+      }
+
+      function getFilteredClients() {
+        return state.clients
+          .map(c => ({ client: c, match: getClientMatchInfo(c, uiState.searchQuery) }))
+          .filter(({ client, match }) => {
+            if (!match.matched) return false;
+            if (uiState.regimeFilter === "FAV" && !client.favorite) return false;
+            if (uiState.regimeFilter !== "ALL" && uiState.regimeFilter !== "FAV" && client.regime !== uiState.regimeFilter) return false;
+            if (uiState.statusFilter !== "ALL" && client.status !== uiState.statusFilter) return false;
+            return true;
+          })
+          .sort((a, b) => {
+            if (a.client.favorite !== b.client.favorite) return a.client.favorite ? -1 : 1;
+            return (a.client.razaoSocial || "").localeCompare(b.client.razaoSocial || "", "pt-BR");
+          });
+      }
+
+      // ---------- RENDERING ----------
+      function renderAll() {
+        if (!state) return;
+        applySettingsToDOM(state.settings);
+
+        const banner = document.getElementById("demoBanner");
+        banner.style.display = (state.isDemo && !state.demoBannerDismissed) ? "flex" : "none";
+
+        updateNavBadges();
+        renderClientList();
+        renderClientDetail();
+        if (uiState.activeView === "vault") renderVaultView();
+        if (uiState.activeView === "radar") renderRadarView();
+      }
+
+      function updateNavBadges() {
+        document.getElementById("badgeClientsCount").textContent = state.clients.length;
+        const totalCreds = state.clients.reduce((acc, c) => acc + (c.credenciais?.length || 0), 0);
+        document.getElementById("badgeVaultCount").textContent = totalCreds;
+
+        let expiredOrSoon = 0;
+        let hasExpired = false;
+        state.clients.forEach(c => {
+          (c.certificados || []).forEach(cert => {
+            const st = certStatusInfo(cert.vencimento);
+            if (st.state === "expired") { expiredOrSoon++; hasExpired = true; }
+            else if (st.state === "soon") { expiredOrSoon++; }
+          });
+        });
+        const radarBadge = document.getElementById("badgeRadarAlert");
+        radarBadge.textContent = expiredOrSoon;
+        radarBadge.className = "nav-badge" + (hasExpired ? " danger" : expiredOrSoon > 0 ? " warning" : "");
+      }
+
+      function renderClientList() {
+        const listEl = document.getElementById("clientList");
+        const filtered = getFilteredClients();
+        document.getElementById("listCountInfo").textContent = `${filtered.length} de ${state.clients.length} clientes`;
+
+        if (filtered.length > 0 && !filtered.some(x => x.client.id === uiState.selectedClientId)) {
+          uiState.selectedClientId = filtered[0].client.id;
+        }
+        if (filtered.length === 0) {
+          uiState.selectedClientId = null;
+          listEl.innerHTML = `<div class="empty-state" style="padding:24px 12px;">Nenhum cliente encontrado com os filtros atuais.</div>`;
+          return;
+        }
+
+        listEl.innerHTML = filtered.map(({ client, match }) => {
+          const isSel = client.id === uiState.selectedClientId;
+          const worstCert = getWorstCertAlert(client);
+          return `
+            <div class="client-item ${isSel ? "selected" : ""}" data-select-client="${escapeHtml(client.id)}">
+              <div class="client-item-top">
+                <div class="client-item-name">
+                  ${client.favorite ? "⭐ " : ""}${escapeHtml(client.nomeFantasia || client.razaoSocial)}
+                </div>
+                ${client.codigoInterno ? `<span class="badge">#${escapeHtml(client.codigoInterno)}</span>` : ""}
+              </div>
+              ${client.nomeFantasia && client.razaoSocial ? `<div style="font-size:11.5px; color:var(--text-dim); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${escapeHtml(client.razaoSocial)}</div>` : ""}
+              <div class="client-item-meta">
+                <span class="mono sensitive">${escapeHtml(formatCnpjCpf(client.documento) || "Sem doc")}</span>
+                <button class="btn btn-xs" data-quick-copy-doc="${escapeHtml(client.id)}" title="Copiar documento (1 clique)">Copiar</button>
+              </div>
+              <div style="display:flex; gap:5px; flex-wrap:wrap; margin-top:6px;">
+                <span class="badge badge-accent">${escapeHtml(client.regime || "PJ")}</span>
+                ${worstCert ? `<span class="${worstCert.cls}">${escapeHtml(worstCert.label)}</span>` : ""}
+              </div>
+              ${match.hint ? `<div class="match-hint">${escapeHtml(match.hint)}</div>` : ""}
+            </div>
+          `;
+        }).join("");
+      }
+
+      function renderClientDetail() {
+        const pane = document.getElementById("clientDetailPane");
+        const c = state.clients.find(x => x.id === uiState.selectedClientId);
+
+        if (!c) {
+          pane.innerHTML = `
+            <div class="empty-state" style="margin-top:30px;">
+              <h3 style="margin-top:0;">Nenhum cliente selecionado</h3>
+              <p>Selecione um cliente na lista ao lado, clique em <strong>+ Novo Cliente</strong> ou use a aba <strong>Captura Rápida</strong> para colar dados de um cliente.</p>
+              <button class="btn btn-primary" id="btnEmptyNewClient">+ Cadastrar Primeiro Cliente</button>
+            </div>
+          `;
+          return;
+        }
+
+        const docFormatted = formatCnpjCpf(c.documento);
+        const docDigits = onlyDigits(c.documento);
+
+        pane.innerHTML = `
+          <!-- HEADER -->
+          <div class="detail-header">
+            <div class="detail-title-row">
+              <div>
+                <h1 class="detail-title">
+                  ${c.favorite ? "⭐ " : ""}${escapeHtml(c.razaoSocial)}
+                </h1>
+                <div class="detail-subtitle">
+                  ${c.nomeFantasia ? `<span>Fantasia: <strong>${escapeHtml(c.nomeFantasia)}</strong></span>` : ""}
+                  ${c.codigoInterno ? `<span class="badge">Cód. Interno: #${escapeHtml(c.codigoInterno)}</span>` : ""}
+                  <span class="badge badge-accent">${escapeHtml(c.regime)}</span>
+                  <span class="badge ${c.status === "Ativo" ? "badge-success" : "badge-warning"}">${escapeHtml(c.status)}</span>
+                  ${c.uf ? `<span class="badge">${escapeHtml(c.uf)}</span>` : ""}
+                </div>
+              </div>
+              <div style="display:flex; gap:6px; flex-wrap:wrap;">
+                <button class="btn btn-sm" data-action="toggle-fav" data-id="${escapeHtml(c.id)}">${c.favorite ? "★ Favorito" : "☆ Favoritar"}</button>
+                <button class="btn btn-sm" data-action="edit-client" data-id="${escapeHtml(c.id)}">✎ Editar Cadastro</button>
+                <button class="btn btn-sm" data-action="duplicate-client" data-id="${escapeHtml(c.id)}">Duplicar</button>
+                <button class="btn btn-sm btn-danger" data-action="delete-client" data-id="${escapeHtml(c.id)}">Excluir</button>
+              </div>
+            </div>
+
+            <!-- QUICK COPY STRIP -->
+            <div class="quick-strip">
+              <div class="quick-chip">
+                <div class="quick-chip-label">${c.type === "PF" ? "CPF" : "CNPJ"}</div>
+                <div class="quick-chip-val sensitive">${escapeHtml(docFormatted || "Não informado")}</div>
+                <div class="quick-chip-actions">
+                  <button class="btn btn-xs btn-primary" data-copy-val="${escapeHtml(docDigits)}" data-copy-lbl="CNPJ/CPF (Só Números)">Só Números</button>
+                  <button class="btn btn-xs" data-copy-val="${escapeHtml(docFormatted)}" data-copy-lbl="CNPJ/CPF (Formatado)">Formatado</button>
+                </div>
+              </div>
+
+              <div class="quick-chip">
+                <div class="quick-chip-label">Inscrição Estadual (IE)</div>
+                <div class="quick-chip-val sensitive">${escapeHtml(c.inscricaoEstadual || "Não informada")}</div>
+                <div class="quick-chip-actions">
+                  <button class="btn btn-xs" data-copy-val="${escapeHtml(onlyDigits(c.inscricaoEstadual) || c.inscricaoEstadual)}" data-copy-lbl="IE (Limpa)">Copiar Limpa</button>
+                  <button class="btn btn-xs" data-copy-val="${escapeHtml(c.inscricaoEstadual)}" data-copy-lbl="IE">Original</button>
+                </div>
+              </div>
+
+              <div class="quick-chip">
+                <div class="quick-chip-label">Inscrição Municipal (IM/CCM)</div>
+                <div class="quick-chip-val sensitive">${escapeHtml(c.inscricaoMunicipal || "Não informada")}</div>
+                <div class="quick-chip-actions">
+                  <button class="btn btn-xs" data-copy-val="${escapeHtml(onlyDigits(c.inscricaoMunicipal) || c.inscricaoMunicipal)}" data-copy-lbl="IM (Limpa)">Copiar Limpa</button>
+                  <button class="btn btn-xs" data-copy-val="${escapeHtml(c.inscricaoMunicipal)}" data-copy-lbl="IM">Original</button>
+                </div>
+              </div>
+
+              <div class="quick-chip">
+                <div class="quick-chip-label">Cód. Simples Nacional</div>
+                <div class="quick-chip-val sensitive">${escapeHtml(c.codigoSimples || "Não informado")}</div>
+                <div class="quick-chip-actions">
+                  <button class="btn btn-xs" data-copy-val="${escapeHtml(c.codigoSimples)}" data-copy-lbl="Código Simples">Copiar Código</button>
+                </div>
+              </div>
+
+              <div class="quick-chip">
+                <div class="quick-chip-label">Código Acesso e-CAC</div>
+                <div class="quick-chip-val sensitive">${escapeHtml(c.codigoEcac || "Não informado")}</div>
+                <div class="quick-chip-actions">
+                  <button class="btn btn-xs" data-copy-val="${escapeHtml(c.codigoEcac)}" data-copy-lbl="Código e-CAC">Copiar Código</button>
+                </div>
+              </div>
+
+              <div class="quick-chip">
+                <div class="quick-chip-label">NIRE / CNAE Principal</div>
+                <div class="quick-chip-val" style="font-size:12px;">${escapeHtml(c.nire || "-")} | ${escapeHtml((c.cnaePrincipal || "-").split(" ")[0])}</div>
+                <div class="quick-chip-actions">
+                  <button class="btn btn-xs" data-copy-val="${escapeHtml(c.nire)}" data-copy-lbl="NIRE">Copiar NIRE</button>
+                  <button class="btn btn-xs" data-copy-val="${escapeHtml((c.cnaePrincipal || "").split(" ")[0])}" data-copy-lbl="CNAE">CNAE</button>
+                </div>
+              </div>
+            </div>
+
+            <div style="display:flex; gap:14px; flex-wrap:wrap; margin-top:12px; font-size:12.5px; color:var(--text-muted);">
+              ${c.email ? `<span>📧 <span class="sensitive">${escapeHtml(c.email)}</span> <button class="btn btn-xs" data-copy-val="${escapeHtml(c.email)}" data-copy-lbl="E-mail">Copiar</button></span>` : ""}
+              ${c.telefone ? `<span>📞 <span class="sensitive">${escapeHtml(c.telefone)}</span> <button class="btn btn-xs" data-copy-val="${escapeHtml(c.telefone)}" data-copy-lbl="Telefone">Copiar</button></span>` : ""}
+              ${c.pastaLink ? `<span>📁 <span class="mono">${escapeHtml(c.pastaLink)}</span> <button class="btn btn-xs" data-copy-val="${escapeHtml(c.pastaLink)}" data-copy-lbl="Caminho da Pasta">Copiar</button></span>` : ""}
+              ${c.endereco ? `<span>📍 ${escapeHtml(c.endereco)}</span>` : ""}
+            </div>
+          </div>
+
+          <!-- SECTION 1: CREDENCIAIS / SENHAS DE PORTAIS -->
+          <div class="section-card">
+            <div class="section-header">
+              <h2 class="section-title">🔑 Credenciais & Senhas de Portais (${(c.credenciais || []).length})</h2>
+              <button class="btn btn-sm btn-primary" data-action="add-cred" data-id="${escapeHtml(c.id)}">+ Nova Senha/Portal</button>
+            </div>
+            ${(c.credenciais && c.credenciais.length) ? `
+              <div class="items-grid">
+                ${c.credenciais.map(cred => {
+                  const isRev = uiState.revealedSecrets.has("cred-" + cred.id);
+                  return `
+                    <div class="data-card">
+                      <div class="data-card-header">
+                        <div>
+                          <span class="badge badge-purple" style="margin-bottom:4px;">${escapeHtml(cred.categoria)}</span>
+                          <div style="font-weight:700; font-size:13.5px;">${escapeHtml(cred.portal)}</div>
+                        </div>
+                        <div style="display:flex; gap:4px;">
+                          ${cred.url ? `<a href="${escapeHtml(cred.url)}" target="_blank" rel="noopener noreferrer" class="btn btn-xs" title="Abrir Portal">↗</a>` : ""}
+                          <button class="btn btn-xs" data-action="edit-cred" data-cid="${escapeHtml(c.id)}" data-item-id="${escapeHtml(cred.id)}">✎</button>
+                          <button class="btn btn-xs btn-danger" data-action="del-cred" data-cid="${escapeHtml(c.id)}" data-item-id="${escapeHtml(cred.id)}">✕</button>
+                        </div>
+                      </div>
+
+                      <div class="data-row">
+                        <span class="data-row-label">Usuário</span>
+                        <span class="data-row-value sensitive">${escapeHtml(cred.usuario || "-")}</span>
+                        <button class="btn btn-xs btn-primary" data-copy-val="${escapeHtml(cred.usuario)}" data-copy-lbl="Usuário (${escapeHtml(cred.portal)})">Copiar</button>
+                      </div>
+
+                      <div class="data-row">
+                        <span class="data-row-label">Senha</span>
+                        <span class="data-row-value sensitive">${isRev ? escapeHtml(cred.senha || "-") : (cred.senha ? "••••••••••" : "-")}</span>
+                        <button class="btn btn-xs" data-toggle-secret="cred-${escapeHtml(cred.id)}" title="Mostrar/Ocultar">${isRev ? "Ocultar" : "Ver"}</button>
+                        <button class="btn btn-xs btn-primary" data-copy-val="${escapeHtml(cred.senha)}" data-copy-lbl="Senha (${escapeHtml(cred.portal)})">Copiar</button>
+                      </div>
+
+                      ${cred.segundoFatorOuCodigo ? `
+                        <div class="data-row">
+                          <span class="data-row-label">Cód/2FA</span>
+                          <span class="data-row-value sensitive">${escapeHtml(cred.segundoFatorOuCodigo)}</span>
+                          <button class="btn btn-xs" data-copy-val="${escapeHtml(cred.segundoFatorOuCodigo)}" data-copy-lbl="Código Auxiliar">Copiar</button>
+                        </div>
+                      ` : ""}
+                      ${cred.obs ? `<div style="font-size:11.5px; color:var(--text-muted);">${escapeHtml(cred.obs)}</div>` : ""}
+                    </div>
+                  `;
+                }).join("")}
+              </div>
+            ` : `<div style="color:var(--text-dim); font-size:13px;">Nenhuma senha ou portal cadastrado para este cliente.</div>`}
+          </div>
+
+          <!-- SECTION 2: CERTIFICADOS DIGITAIS & PROCURAÇÕES -->
+          <div class="section-card">
+            <div class="section-header">
+              <h2 class="section-title">🛡️ Certificados Digitais & Procurações (${(c.certificados || []).length})</h2>
+              <button class="btn btn-sm btn-primary" data-action="add-cert" data-id="${escapeHtml(c.id)}">+ Novo Certificado/Procuração</button>
+            </div>
+            ${(c.certificados && c.certificados.length) ? `
+              <div class="items-grid">
+                ${c.certificados.map(cert => {
+                  const st = certStatusInfo(cert.vencimento);
+                  const isRev = uiState.revealedSecrets.has("cert-" + cert.id);
+                  return `
+                    <div class="data-card">
+                      <div class="data-card-header">
+                        <div>
+                          <div style="display:flex; gap:5px; align-items:center; flex-wrap:wrap; margin-bottom:4px;">
+                            <span class="badge badge-accent">${escapeHtml(cert.tipo)}</span>
+                            <span class="${st.cls}">${escapeHtml(st.label)}</span>
+                          </div>
+                          <div style="font-weight:700; font-size:13.5px;">${escapeHtml(cert.titular)}</div>
+                          <div style="font-size:11.5px; color:var(--text-muted);">Vencimento: <strong>${escapeHtml(formatDateBR(cert.vencimento) || "Não definido")}</strong></div>
+                        </div>
+                        <div style="display:flex; gap:4px;">
+                          <button class="btn btn-xs" data-action="edit-cert" data-cid="${escapeHtml(c.id)}" data-item-id="${escapeHtml(cert.id)}">✎</button>
+                          <button class="btn btn-xs btn-danger" data-action="del-cert" data-cid="${escapeHtml(c.id)}" data-item-id="${escapeHtml(cert.id)}">✕</button>
+                        </div>
+                      </div>
+
+                      <div class="data-row">
+                        <span class="data-row-label">Senha / PIN</span>
+                        <span class="data-row-value sensitive">${isRev ? escapeHtml(cert.senhaPin || "-") : (cert.senhaPin ? "••••••••" : "-")}</span>
+                        <button class="btn btn-xs" data-toggle-secret="cert-${escapeHtml(cert.id)}">${isRev ? "Ocultar" : "Ver"}</button>
+                        <button class="btn btn-xs btn-primary" data-copy-val="${escapeHtml(cert.senhaPin)}" data-copy-lbl="PIN (${escapeHtml(cert.tipo)})">Copiar</button>
+                      </div>
+
+                      ${cert.senhaPuk ? `
+                        <div class="data-row">
+                          <span class="data-row-label">PUK</span>
+                          <span class="data-row-value sensitive">${isRev ? escapeHtml(cert.senhaPuk) : "••••••"}</span>
+                          <button class="btn btn-xs" data-copy-val="${escapeHtml(cert.senhaPuk)}" data-copy-lbl="PUK">Copiar</button>
+                        </div>
+                      ` : ""}
+
+                      ${cert.certificadoraOuLocal ? `<div style="font-size:11.5px; color:var(--text-muted);">📁 ${escapeHtml(cert.certificadoraOuLocal)}</div>` : ""}
+                      ${cert.obs ? `<div style="font-size:11.5px; color:var(--warning);">${escapeHtml(cert.obs)}</div>` : ""}
+                    </div>
+                  `;
+                }).join("")}
+              </div>
+            ` : `<div style="color:var(--text-dim); font-size:13px;">Nenhum certificado digital ou procuração cadastrada.</div>`}
+          </div>
+
+          <!-- SECTION 3: SÓCIOS / RESPONSÁVEIS LEGAIS (CPF, GOV.BR, IRPF) -->
+          <div class="section-card">
+            <div class="section-header">
+              <h2 class="section-title">👥 Quadro Societário & Responsáveis CPF (${(c.socios || []).length})</h2>
+              <button class="btn btn-sm btn-primary" data-action="add-socio" data-id="${escapeHtml(c.id)}">+ Novo Sócio/Responsável</button>
+            </div>
+            ${(c.socios && c.socios.length) ? `
+              <div class="items-grid">
+                ${c.socios.map(s => {
+                  const isRev = uiState.revealedSecrets.has("gov-" + s.id);
+                  return `
+                    <div class="data-card">
+                      <div class="data-card-header">
+                        <div>
+                          <div style="font-weight:700; font-size:13.5px;">${escapeHtml(s.nome)}</div>
+                          <div style="font-size:11.5px; color:var(--text-muted);">
+                            ${escapeHtml(s.qualificacao || "Sócio")} ${s.participacao ? `• ${escapeHtml(s.participacao)}` : ""}
+                            ${s.govBrNivel ? `• Gov.br ${escapeHtml(s.govBrNivel)}` : ""}
+                          </div>
+                        </div>
+                        <div style="display:flex; gap:4px;">
+                          <button class="btn btn-xs" data-action="edit-socio" data-cid="${escapeHtml(c.id)}" data-item-id="${escapeHtml(s.id)}">✎</button>
+                          <button class="btn btn-xs btn-danger" data-action="del-socio" data-cid="${escapeHtml(c.id)}" data-item-id="${escapeHtml(s.id)}">✕</button>
+                        </div>
+                      </div>
+
+                      <div class="data-row">
+                        <span class="data-row-label">CPF</span>
+                        <span class="data-row-value sensitive">${escapeHtml(formatCnpjCpf(s.cpf) || "-")}</span>
+                        <button class="btn btn-xs btn-primary" data-copy-val="${escapeHtml(onlyDigits(s.cpf))}" data-copy-lbl="CPF (Só Números)">Só Núm</button>
+                        <button class="btn btn-xs" data-copy-val="${escapeHtml(formatCnpjCpf(s.cpf))}" data-copy-lbl="CPF">Fmt</button>
+                      </div>
+
+                      <div class="data-row">
+                        <span class="data-row-label">Nasc.</span>
+                        <span class="data-row-value sensitive">${escapeHtml(formatDateBR(s.dataNascimento) || "-")}</span>
+                        <button class="btn btn-xs" data-copy-val="${escapeHtml(formatDateBR(s.dataNascimento))}" data-copy-lbl="Data Nascimento">Copiar</button>
+                      </div>
+
+                      <div class="data-row">
+                        <span class="data-row-label">Gov.br</span>
+                        <span class="data-row-value sensitive">${isRev ? escapeHtml(s.govBrSenha || "-") : (s.govBrSenha ? "••••••••" : "-")}</span>
+                        <button class="btn btn-xs" data-toggle-secret="gov-${escapeHtml(s.id)}">${isRev ? "Ocultar" : "Ver"}</button>
+                        <button class="btn btn-xs btn-primary" data-copy-val="${escapeHtml(s.govBrSenha)}" data-copy-lbl="Senha Gov.br (${escapeHtml(s.nome)})">Copiar</button>
+                      </div>
+
+                      ${s.reciboIrpf ? `
+                        <div class="data-row">
+                          <span class="data-row-label">Recibo IRPF</span>
+                          <span class="data-row-value sensitive">${escapeHtml(s.reciboIrpf)}</span>
+                          <button class="btn btn-xs" data-copy-val="${escapeHtml(s.reciboIrpf)}" data-copy-lbl="Recibo IRPF">Copiar</button>
+                        </div>
+                      ` : ""}
+
+                      ${s.tituloEleitor ? `
+                        <div class="data-row">
+                          <span class="data-row-label">Título Eleit.</span>
+                          <span class="data-row-value sensitive">${escapeHtml(s.tituloEleitor)}</span>
+                          <button class="btn btn-xs" data-copy-val="${escapeHtml(onlyDigits(s.tituloEleitor) || s.tituloEleitor)}" data-copy-lbl="Título Eleitor">Copiar</button>
+                        </div>
+                      ` : ""}
+                      ${s.rg ? `<div style="font-size:11.5px; color:var(--text-muted);">RG: <span class="sensitive">${escapeHtml(s.rg)}</span></div>` : ""}
+                      ${s.obs ? `<div style="font-size:11.5px; color:var(--text-muted);">${escapeHtml(s.obs)}</div>` : ""}
+                    </div>
+                  `;
+                }).join("")}
+              </div>
+            ` : `<div style="color:var(--text-dim); font-size:13px;">Nenhum sócio ou responsável cadastrado.</div>`}
+          </div>
+
+          <!-- SECTION 4: PARÂMETROS FISCAIS / DP, CAMPOS EXTRAS E NOTAS -->
+          <div class="section-card">
+            <div class="section-header">
+              <h2 class="section-title">📋 Parâmetros Fiscais, DP, Campos Extras & Notas</h2>
+              <button class="btn btn-sm" data-action="add-extra" data-id="${escapeHtml(c.id)}">+ Campo Extra</button>
+            </div>
+
+            <div class="quick-strip" style="margin-top:0; margin-bottom:12px;">
+              <div class="quick-chip"><div class="quick-chip-label">Funcionários</div><div>${escapeHtml(c.fiscalDp?.possuiFuncionarios || "-")}</div></div>
+              <div class="quick-chip"><div class="quick-chip-label">Fechamento Folha</div><div>${escapeHtml(c.fiscalDp?.diaFechamentoFolha || "-")}</div></div>
+              <div class="quick-chip"><div class="quick-chip-label">FAP / RAT / FPAS</div><div class="mono">${escapeHtml(c.fiscalDp?.fap || "-")} | ${escapeHtml(c.fiscalDp?.rat || "-")} | ${escapeHtml(c.fiscalDp?.fpas || "-")}</div></div>
+              <div class="quick-chip"><div class="quick-chip-label">Alíquota ISS</div><div>${escapeHtml(c.fiscalDp?.aliquotaIss || "-")}</div></div>
+              <div class="quick-chip"><div class="quick-chip-label">Sistema / ERP</div><div>${escapeHtml(c.fiscalDp?.sistemaErp || "-")}</div></div>
+              <div class="quick-chip"><div class="quick-chip-label">Sindicato / Bancos</div><div>${escapeHtml(c.fiscalDp?.sindicato || "-")} ${c.fiscalDp?.bancos ? " / " + escapeHtml(c.fiscalDp.bancos) : ""}</div></div>
+            </div>
+
+            ${(c.camposExtras && c.camposExtras.length) ? `
+              <div style="margin-bottom:12px;">
+                <div style="font-size:12px; font-weight:600; color:var(--text-muted); margin-bottom:6px;">Campos Personalizados (Snippets de 1 clique)</div>
+                <div class="items-grid">
+                  ${c.camposExtras.map(ex => `
+                    <div class="data-row">
+                      <span class="data-row-label">${escapeHtml(ex.chave)}</span>
+                      <span class="data-row-value ${ex.sensivel ? "sensitive" : ""}">${escapeHtml(ex.valor)}</span>
+                      <button class="btn btn-xs btn-primary" data-copy-val="${escapeHtml(ex.valor)}" data-copy-lbl="${escapeHtml(ex.chave)}">Copiar</button>
+                      <button class="btn btn-xs btn-danger" data-action="del-extra" data-cid="${escapeHtml(c.id)}" data-item-id="${escapeHtml(ex.id)}">✕</button>
+                    </div>
+                  `).join("")}
+                </div>
+              </div>
+            ` : ""}
+
+            <div class="form-group">
+              <label for="inlineClientNotes">Observações Operacionais do Cliente (salva automaticamente ao digitar)</label>
+              <textarea id="inlineClientNotes" data-notes-cid="${escapeHtml(c.id)}" class="form-control" rows="3" placeholder="Anote aqui rotinas de fechamento, particularidades de NF, contatos do financeiro, etc.">${escapeHtml(c.observacoes || "")}</textarea>
+            </div>
+          </div>
+        `;
+      }
+
+      function renderVaultView() {
+        const wrap = document.getElementById("vaultTableWrap");
+        const cat = uiState.vaultCategory;
+        const q = uiState.vaultSearch.toLowerCase().trim();
+
+        const rows = [];
+        state.clients.forEach(c => {
+          (c.credenciais || []).forEach(cred => {
+            if (cat !== "ALL" && cred.categoria !== cat) return;
+            const hay = `${c.razaoSocial} ${c.nomeFantasia} ${c.documento} ${cred.portal} ${cred.usuario} ${cred.categoria}`.toLowerCase();
+            if (q && !hay.includes(q)) return;
+            rows.push({ client: c, cred });
+          });
+        });
+
+        if (rows.length === 0) {
+          wrap.innerHTML = `<div class="empty-state" style="border:none;">Nenhuma credencial encontrada para o filtro atual.</div>`;
+          return;
+        }
+
+        wrap.innerHTML = `
+          <table>
+            <thead>
+              <tr>
+                <th>Cliente</th>
+                <th>Categoria</th>
+                <th>Portal</th>
+                <th>Usuário</th>
+                <th>Senha</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${rows.map(({ client, cred }) => {
+                const isRev = uiState.revealedSecrets.has("vault-" + cred.id);
+                return `
+                  <tr>
+                    <td>
+                      <div style="font-weight:600;">${escapeHtml(client.nomeFantasia || client.razaoSocial)}</div>
+                      <div class="mono sensitive" style="font-size:11.5px; color:var(--text-muted);">${escapeHtml(formatCnpjCpf(client.documento))}</div>
+                    </td>
+                    <td><span class="badge badge-purple">${escapeHtml(cred.categoria)}</span></td>
+                    <td>
+                      <div style="font-weight:600;">${escapeHtml(cred.portal)}</div>
+                      ${cred.url ? `<a href="${escapeHtml(cred.url)}" target="_blank" rel="noopener noreferrer" style="font-size:11.5px;">Abrir portal ↗</a>` : ""}
+                    </td>
+                    <td class="mono sensitive">${escapeHtml(cred.usuario || "-")}</td>
+                    <td class="mono sensitive">${isRev ? escapeHtml(cred.senha || "-") : (cred.senha ? "••••••••" : "-")}</td>
+                    <td>
+                      <div style="display:flex; gap:5px; flex-wrap:wrap;">
+                        <button class="btn btn-xs" data-copy-val="${escapeHtml(cred.usuario)}" data-copy-lbl="Usuário">Copiar Usuário</button>
+                        <button class="btn btn-xs btn-primary" data-copy-val="${escapeHtml(cred.senha)}" data-copy-lbl="Senha">Copiar Senha</button>
+                        <button class="btn btn-xs" data-toggle-secret="vault-${escapeHtml(cred.id)}">${isRev ? "Ocultar" : "Ver"}</button>
+                        <button class="btn btn-xs" data-jump-client="${escapeHtml(client.id)}">Abrir Ficha</button>
+                      </div>
+                    </td>
+                  </tr>
+                `;
+              }).join("")}
+            </tbody>
+          </table>
+        `;
+      }
+
+      function renderRadarView() {
+        const statsEl = document.getElementById("radarStats");
+        const wrap = document.getElementById("radarTableWrap");
+
+        const items = [];
+        state.clients.forEach(c => {
+          (c.certificados || []).forEach(cert => {
+            const st = certStatusInfo(cert.vencimento);
+            items.push({ client: c, cert, st });
+          });
+        });
+
+        items.sort((a, b) => a.st.days - b.st.days);
+
+        const expired = items.filter(i => i.st.state === "expired").length;
+        const soon30 = items.filter(i => i.st.state === "soon").length;
+        const warn60 = items.filter(i => i.st.state === "warn60").length;
+        const ok = items.filter(i => i.st.state === "ok").length;
+
+        statsEl.innerHTML = `
+          <div class="stat-card"><div class="stat-label">Vencidos</div><div class="stat-val" style="color:var(--danger);">${expired}</div></div>
+          <div class="stat-card"><div class="stat-label">Vencem em até 30 dias</div><div class="stat-val" style="color:var(--warning);">${soon30}</div></div>
+          <div class="stat-card"><div class="stat-label">Vencem em 31-60 dias</div><div class="stat-val" style="color:var(--accent);">${warn60}</div></div>
+          <div class="stat-card"><div class="stat-label">Vigentes (+60 dias)</div><div class="stat-val" style="color:var(--success);">${ok}</div></div>
+        `;
+
+        if (items.length === 0) {
+          wrap.innerHTML = `<div class="empty-state" style="border:none;">Nenhum certificado digital ou procuração cadastrada.</div>`;
+          return;
+        }
+
+        wrap.innerHTML = `
+          <table>
+            <thead>
+              <tr>
+                <th>Status</th>
+                <th>Vencimento</th>
+                <th>Cliente / CNPJ</th>
+                <th>Tipo</th>
+                <th>Titular / Local</th>
+                <th>Ações Rápidas</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${items.map(({ client, cert, st }) => `
+                <tr>
+                  <td><span class="${st.cls}">${escapeHtml(st.label)}</span></td>
+                  <td class="mono">${escapeHtml(formatDateBR(cert.vencimento) || "-")}</td>
+                  <td>
+                    <div style="font-weight:600;">${escapeHtml(client.nomeFantasia || client.razaoSocial)}</div>
+                    <div class="mono sensitive" style="font-size:11.5px; color:var(--text-muted);">${escapeHtml(formatCnpjCpf(client.documento))}</div>
+                  </td>
+                  <td><span class="badge badge-accent">${escapeHtml(cert.tipo)}</span></td>
+                  <td>
+                    <div>${escapeHtml(cert.titular)}</div>
+                    <div style="font-size:11.5px; color:var(--text-muted);">${escapeHtml(cert.certificadoraOuLocal || "")}</div>
+                  </td>
+                  <td>
+                    <div style="display:flex; gap:5px; flex-wrap:wrap;">
+                      <button class="btn btn-xs btn-primary" data-copy-val="${escapeHtml(cert.senhaPin)}" data-copy-lbl="PIN Certificado">Copiar PIN</button>
+                      <button class="btn btn-xs" data-copy-val="${escapeHtml(onlyDigits(client.documento))}" data-copy-lbl="CNPJ Cliente">Copiar Doc</button>
+                      <button class="btn btn-xs" data-jump-client="${escapeHtml(client.id)}">Abrir Ficha</button>
+                    </div>
+                  </td>
+                </tr>
+              `).join("")}
+            </tbody>
+          </table>
+        `;
+      }
+
+      // ---------- MODAL SYSTEM ----------
+      function openModal(title, bodyHtml, footerHtml) {
+        document.getElementById("modalTitle").textContent = title;
+        document.getElementById("modalBody").innerHTML = bodyHtml;
+        document.getElementById("modalFooter").innerHTML = footerHtml;
+        document.getElementById("modalBackdrop").classList.add("open");
+      }
+
+      function closeModal() {
+        document.getElementById("modalBackdrop").classList.remove("open");
+      }
+
+      function openClientModal(existing = null, prefill = null) {
+        const c = existing || {
+          id: null,
+          favorite: false,
+          status: "Ativo",
+          type: "PJ",
+          razaoSocial: "",
+          nomeFantasia: "",
+          codigoInterno: "",
+          documento: "",
+          regime: "Simples Nacional",
+          inscricaoEstadual: "",
+          uf: "SP",
+          inscricaoMunicipal: "",
+          nire: "",
+          cnaePrincipal: "",
+          codigoSimples: "",
+          codigoEcac: "",
+          email: "",
+          telefone: "",
+          endereco: "",
+          pastaLink: "",
+          tags: [],
+          fiscalDp: {},
+          observacoes: "",
+          ...(prefill || {})
+        };
+
+        const body = `
+          <form id="clientForm" class="form-grid">
+            <div class="form-group full">
+              <label>Razão Social / Nome Completo *</label>
+              <input name="razaoSocial" class="form-control" value="${escapeHtml(c.razaoSocial)}" required />
+            </div>
+            <div class="form-group">
+              <label>Nome Fantasia / Apelido</label>
+              <input name="nomeFantasia" class="form-control" value="${escapeHtml(c.nomeFantasia)}" />
+            </div>
+            <div class="form-group">
+              <label>Código no Sistema Contábil (Domínio, Alterdata, etc.)</label>
+              <input name="codigoInterno" class="form-control" value="${escapeHtml(c.codigoInterno)}" placeholder="Ex: 1042" />
+            </div>
+            <div class="form-group">
+              <label>CNPJ / CPF</label>
+              <input name="documento" class="form-control mono" value="${escapeHtml(c.documento)}" placeholder="00.000.000/0001-00" />
+            </div>
+            <div class="form-group">
+              <label>Tipo / Regime Tributário</label>
+              <select name="regime" class="form-control">
+                ${["Simples Nacional", "Lucro Presumido", "Lucro Real", "MEI", "PF / Autônomo", "Imune/Isenta"].map(r =>
+                  `<option ${c.regime === r ? "selected" : ""}>${r}</option>`
+                ).join("")}
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Status</label>
+              <select name="status" class="form-control">
+                ${["Ativo", "Em Constituição", "Paralisado", "Baixado"].map(s =>
+                  `<option ${c.status === s ? "selected" : ""}>${s}</option>`
+                ).join("")}
+              </select>
+            </div>
+            <div class="form-group">
+              <label>UF</label>
+              <input name="uf" class="form-control" maxlength="2" value="${escapeHtml(c.uf)}" placeholder="SP" />
+            </div>
+            <div class="form-group">
+              <label>Inscrição Estadual (IE)</label>
+              <input name="inscricaoEstadual" class="form-control mono" value="${escapeHtml(c.inscricaoEstadual)}" />
+            </div>
+            <div class="form-group">
+              <label>Inscrição Municipal (IM / CCM)</label>
+              <input name="inscricaoMunicipal" class="form-control mono" value="${escapeHtml(c.inscricaoMunicipal)}" />
+            </div>
+            <div class="form-group">
+              <label>Código Acesso Simples Nacional</label>
+              <input name="codigoSimples" class="form-control mono" value="${escapeHtml(c.codigoSimples)}" />
+            </div>
+            <div class="form-group">
+              <label>Código Acesso e-CAC</label>
+              <input name="codigoEcac" class="form-control mono" value="${escapeHtml(c.codigoEcac)}" />
+            </div>
+            <div class="form-group">
+              <label>NIRE</label>
+              <input name="nire" class="form-control mono" value="${escapeHtml(c.nire)}" />
+            </div>
+            <div class="form-group">
+              <label>CNAE Principal</label>
+              <input name="cnaePrincipal" class="form-control" value="${escapeHtml(c.cnaePrincipal)}" />
+            </div>
+            <div class="form-group">
+              <label>E-mail do Cliente</label>
+              <input name="email" type="email" class="form-control" value="${escapeHtml(c.email)}" />
+            </div>
+            <div class="form-group">
+              <label>Telefone / WhatsApp</label>
+              <input name="telefone" class="form-control" value="${escapeHtml(c.telefone)}" />
+            </div>
+            <div class="form-group full">
+              <label>Endereço Completo</label>
+              <input name="endereco" class="form-control" value="${escapeHtml(c.endereco)}" />
+            </div>
+            <div class="form-group full">
+              <label>Caminho da Pasta / Link Drive do Cliente</label>
+              <input name="pastaLink" class="form-control mono" value="${escapeHtml(c.pastaLink)}" placeholder="\\\\Servidor\\Clientes\\1042 ou https://drive.google.com/..." />
+            </div>
+            <div class="form-group">
+              <label>Possui Funcionários (DP)</label>
+              <input name="possuiFuncionarios" class="form-control" value="${escapeHtml(c.fiscalDp?.possuiFuncionarios || "")}" placeholder="Ex: Sim (5)" />
+            </div>
+            <div class="form-group">
+              <label>Dia Fechamento Folha</label>
+              <input name="diaFechamentoFolha" class="form-control" value="${escapeHtml(c.fiscalDp?.diaFechamentoFolha || "")}" placeholder="Ex: Dia 25" />
+            </div>
+            <div class="form-group">
+              <label>FAP / RAT / FPAS (separado por | ou texto)</label>
+              <div style="display:flex; gap:6px;">
+                <input name="fap" class="form-control" placeholder="FAP" value="${escapeHtml(c.fiscalDp?.fap || "")}" />
+                <input name="rat" class="form-control" placeholder="RAT" value="${escapeHtml(c.fiscalDp?.rat || "")}" />
+                <input name="fpas" class="form-control" placeholder="FPAS" value="${escapeHtml(c.fiscalDp?.fpas || "")}" />
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Alíquota ISS / Sistema ERP</label>
+              <div style="display:flex; gap:6px;">
+                <input name="aliquotaIss" class="form-control" placeholder="ISS" value="${escapeHtml(c.fiscalDp?.aliquotaIss || "")}" />
+                <input name="sistemaErp" class="form-control" placeholder="ERP" value="${escapeHtml(c.fiscalDp?.sistemaErp || "")}" />
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Sindicato</label>
+              <input name="sindicato" class="form-control" value="${escapeHtml(c.fiscalDp?.sindicato || "")}" />
+            </div>
+            <div class="form-group">
+              <label>Bancos</label>
+              <input name="bancos" class="form-control" value="${escapeHtml(c.fiscalDp?.bancos || "")}" />
+            </div>
+            <div class="form-group full">
+              <label>Tags (separadas por vírgula)</label>
+              <input name="tags" class="form-control" value="${escapeHtml((c.tags || []).join(", "))}" placeholder="Comércio, Folha, ICMS-ST" />
+            </div>
+          </form>
+        `;
+
+        const footer = `
+          <button class="btn" onclick="document.getElementById('modalCloseBtn').click()">Cancelar</button>
+          <button id="btnSaveClientModal" class="btn btn-primary">Salvar Cliente</button>
+        `;
+
+        openModal(existing ? "Editar Cadastro do Cliente" : "Novo Cliente Contábil", body, footer);
+
+        document.getElementById("btnSaveClientModal").onclick = async () => {
+          const form = document.getElementById("clientForm");
+          if (!form.reportValidity()) return;
+          const fd = new FormData(form);
+          const docDigits = onlyDigits(fd.get("documento"));
+          const inferredType = fd.get("regime") === "MEI" ? "MEI" : (docDigits.length === 11 ? "PF" : "PJ");
+
+          const updatedFields = {
+            type: inferredType,
+            razaoSocial: fd.get("razaoSocial").trim(),
+            nomeFantasia: fd.get("nomeFantasia").trim(),
+            codigoInterno: fd.get("codigoInterno").trim(),
+            documento: fd.get("documento").trim(),
+            regime: fd.get("regime"),
+            status: fd.get("status"),
+            uf: fd.get("uf").trim().toUpperCase(),
+            inscricaoEstadual: fd.get("inscricaoEstadual").trim(),
+            inscricaoMunicipal: fd.get("inscricaoMunicipal").trim(),
+            codigoSimples: fd.get("codigoSimples").trim(),
+            codigoEcac: fd.get("codigoEcac").trim(),
+            nire: fd.get("nire").trim(),
+            cnaePrincipal: fd.get("cnaePrincipal").trim(),
+            email: fd.get("email").trim(),
+            telefone: fd.get("telefone").trim(),
+            endereco: fd.get("endereco").trim(),
+            pastaLink: fd.get("pastaLink").trim(),
+            tags: String(fd.get("tags") || "").split(",").map(s => s.trim()).filter(Boolean),
+            fiscalDp: {
+              possuiFuncionarios: fd.get("possuiFuncionarios").trim(),
+              diaFechamentoFolha: fd.get("diaFechamentoFolha").trim(),
+              fap: fd.get("fap").trim(),
+              rat: fd.get("rat").trim(),
+              fpas: fd.get("fpas").trim(),
+              aliquotaIss: fd.get("aliquotaIss").trim(),
+              sistemaErp: fd.get("sistemaErp").trim(),
+              sindicato: fd.get("sindicato").trim(),
+              bancos: fd.get("bancos").trim()
+            }
+          };
+
+          if (existing) {
+            Object.assign(existing, updatedFields);
+            showToast("Cadastro atualizado!", "success");
+          } else {
+            const newClient = {
+              id: uid(),
+              favorite: false,
+              observacoes: prefill?.observacoes || "",
+              socios: prefill?.socios || [],
+              credenciais: prefill?.credenciais || [],
+              certificados: prefill?.certificados || [],
+              camposExtras: prefill?.camposExtras || [],
+              ...updatedFields
+            };
+            state.clients.unshift(newClient);
+            uiState.selectedClientId = newClient.id;
+            showToast("Novo cliente salvo!", "success");
+          }
+          await saveState();
+          closeModal();
+          switchView("clients");
+          renderAll();
+        };
+      }
+
+      function openCredModal(clientId, existing = null) {
+        const client = state.clients.find(c => c.id === clientId);
+        if (!client) return;
+        const item = existing || {
+          categoria: "Prefeitura / NFS-e",
+          portal: "",
+          url: "",
+          usuario: "",
+          senha: "",
+          segundoFatorOuCodigo: "",
+          obs: ""
+        };
+        const cats = [
+          "Prefeitura / NFS-e", "SEFAZ / Estadual", "Gov.br", "e-CAC",
+          "Simples Nacional", "FGTS Digital / Conectividade", "eSocial",
+          "Junta Comercial", "Sistema / ERP", "Banco", "Outro"
+        ];
+        openModal(
+          existing ? "Editar Credencial / Portal" : "Nova Senha / Portal",
+          `<form id="credForm" class="form-grid">
+            <div class="form-group">
+              <label>Categoria</label>
+              <select name="categoria" class="form-control">
+                ${cats.map(ct => `<option ${item.categoria === ct ? "selected" : ""}>${ct}</option>`).join("")}
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Nome do Portal *</label>
+              <input name="portal" class="form-control" value="${escapeHtml(item.portal)}" required placeholder="Ex: Nota Carioca, PFE SP, Omie..." />
+            </div>
+            <div class="form-group full">
+              <label>URL de Acesso</label>
+              <input name="url" class="form-control" value="${escapeHtml(item.url)}" placeholder="https://..." />
+            </div>
+            <div class="form-group">
+              <label>Usuário / Login</label>
+              <input name="usuario" class="form-control mono" value="${escapeHtml(item.usuario)}" />
+            </div>
+            <div class="form-group">
+              <label>Senha</label>
+              <input name="senha" class="form-control mono" value="${escapeHtml(item.senha)}" />
+            </div>
+            <div class="form-group full">
+              <label>Código Auxiliar / CCM / 2FA</label>
+              <input name="segundoFatorOuCodigo" class="form-control mono" value="${escapeHtml(item.segundoFatorOuCodigo)}" />
+            </div>
+            <div class="form-group full">
+              <label>Observações</label>
+              <input name="obs" class="form-control" value="${escapeHtml(item.obs)}" />
+            </div>
+          </form>`,
+          `<button class="btn" onclick="document.getElementById('modalCloseBtn').click()">Cancelar</button>
+           <button id="btnSaveCred" class="btn btn-primary">Salvar Credencial</button>`
+        );
+
+        document.getElementById("btnSaveCred").onclick = async () => {
+          const form = document.getElementById("credForm");
+          if (!form.reportValidity()) return;
+          const fd = new FormData(form);
+          const data = {
+            categoria: fd.get("categoria"),
+            portal: fd.get("portal").trim(),
+            url: fd.get("url").trim(),
+            usuario: fd.get("usuario").trim(),
+            senha: fd.get("senha"),
+            segundoFatorOuCodigo: fd.get("segundoFatorOuCodigo").trim(),
+            obs: fd.get("obs").trim(),
+            updatedAt: new Date().toISOString()
+          };
+          if (existing) {
+            Object.assign(existing, data);
+          } else {
+            client.credenciais = client.credenciais || [];
+            client.credenciais.push({ id: uid(), ...data });
+          }
+          await saveState();
+          closeModal();
+          renderAll();
+          showToast("Credencial salva!", "success");
+        };
+      }
+
+      function openCertModal(clientId, existing = null) {
+        const client = state.clients.find(c => c.id === clientId);
+        if (!client) return;
+        const item = existing || {
+          tipo: "e-CNPJ A1",
+          titular: client.razaoSocial,
+          senhaPin: "",
+          senhaPuk: "",
+          vencimento: "",
+          certificadoraOuLocal: "",
+          obs: ""
+        };
+        const tipos = [
+          "e-CNPJ A1", "e-CNPJ A3", "e-CPF A1", "e-CPF A3",
+          "Procuração e-CAC", "Procuração FGTS Digital", "Procuração SEFAZ"
+        ];
+        openModal(
+          existing ? "Editar Certificado / Procuração" : "Novo Certificado / Procuração",
+          `<form id="certForm" class="form-grid">
+            <div class="form-group">
+              <label>Tipo</label>
+              <select name="tipo" class="form-control">
+                ${tipos.map(t => `<option ${item.tipo === t ? "selected" : ""}>${t}</option>`).join("")}
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Data de Vencimento *</label>
+              <input name="vencimento" type="date" class="form-control" value="${escapeHtml(item.vencimento)}" required />
+            </div>
+            <div class="form-group full">
+              <label>Titular / Outorgado *</label>
+              <input name="titular" class="form-control" value="${escapeHtml(item.titular)}" required />
+            </div>
+            <div class="form-group">
+              <label>Senha / PIN</label>
+              <input name="senhaPin" class="form-control mono" value="${escapeHtml(item.senhaPin)}" />
+            </div>
+            <div class="form-group">
+              <label>Senha PUK (se A3)</label>
+              <input name="senhaPuk" class="form-control mono" value="${escapeHtml(item.senhaPuk)}" />
+            </div>
+            <div class="form-group full">
+              <label>Local do Arquivo (.pfx) / Certificadora</label>
+              <input name="certificadoraOuLocal" class="form-control" value="${escapeHtml(item.certificadoraOuLocal)}" placeholder="Ex: Certisign — Pasta Servidor/Certificados/..." />
+            </div>
+            <div class="form-group full">
+              <label>Observações</label>
+              <input name="obs" class="form-control" value="${escapeHtml(item.obs)}" />
+            </div>
+          </form>`,
+          `<button class="btn" onclick="document.getElementById('modalCloseBtn').click()">Cancelar</button>
+           <button id="btnSaveCert" class="btn btn-primary">Salvar Certificado</button>`
+        );
+
+        document.getElementById("btnSaveCert").onclick = async () => {
+          const form = document.getElementById("certForm");
+          if (!form.reportValidity()) return;
+          const fd = new FormData(form);
+          const data = {
+            tipo: fd.get("tipo"),
+            vencimento: fd.get("vencimento"),
+            titular: fd.get("titular").trim(),
+            senhaPin: fd.get("senhaPin"),
+            senhaPuk: fd.get("senhaPuk"),
+            certificadoraOuLocal: fd.get("certificadoraOuLocal").trim(),
+            obs: fd.get("obs").trim(),
+            status: "Ativo"
+          };
+          if (existing) {
+            Object.assign(existing, data);
+          } else {
+            client.certificados = client.certificados || [];
+            client.certificados.push({ id: uid(), ...data });
+          }
+          await saveState();
+          closeModal();
+          renderAll();
+          showToast("Certificado/Procuração salvo!", "success");
+        };
+      }
+
+      function openSocioModal(clientId, existing = null) {
+        const client = state.clients.find(c => c.id === clientId);
+        if (!client) return;
+        const item = existing || {
+          nome: "", qualificacao: "Sócio-Administrador", cpf: "", dataNascimento: "",
+          rg: "", tituloEleitor: "", reciboIrpf: "", govBrSenha: "", govBrNivel: "Ouro",
+          participacao: "", obs: ""
+        };
+        openModal(
+          existing ? "Editar Sócio / Responsável" : "Novo Sócio / Responsável Legal",
+          `<form id="socioForm" class="form-grid">
+            <div class="form-group full">
+              <label>Nome Completo *</label>
+              <input name="nome" class="form-control" value="${escapeHtml(item.nome)}" required />
+            </div>
+            <div class="form-group">
+              <label>Qualificação</label>
+              <input name="qualificacao" class="form-control" value="${escapeHtml(item.qualificacao)}" />
+            </div>
+            <div class="form-group">
+              <label>Participação (%)</label>
+              <input name="participacao" class="form-control" value="${escapeHtml(item.participacao)}" placeholder="Ex: 50%" />
+            </div>
+            <div class="form-group">
+              <label>CPF</label>
+              <input name="cpf" class="form-control mono" value="${escapeHtml(item.cpf)}" />
+            </div>
+            <div class="form-group">
+              <label>Data de Nascimento</label>
+              <input name="dataNascimento" type="date" class="form-control" value="${escapeHtml(item.dataNascimento)}" />
+            </div>
+            <div class="form-group">
+              <label>Senha Gov.br</label>
+              <input name="govBrSenha" class="form-control mono" value="${escapeHtml(item.govBrSenha)}" />
+            </div>
+            <div class="form-group">
+              <label>Nível Gov.br</label>
+              <select name="govBrNivel" class="form-control">
+                ${["Ouro", "Prata", "Bronze", "Não informado"].map(n => `<option ${item.govBrNivel === n ? "selected" : ""}>${n}</option>`).join("")}
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Número Recibo IRPF (último)</label>
+              <input name="reciboIrpf" class="form-control mono" value="${escapeHtml(item.reciboIrpf)}" />
+            </div>
+            <div class="form-group">
+              <label>Título de Eleitor</label>
+              <input name="tituloEleitor" class="form-control mono" value="${escapeHtml(item.tituloEleitor)}" />
+            </div>
+            <div class="form-group full">
+              <label>RG / Órgão Emissor</label>
+              <input name="rg" class="form-control" value="${escapeHtml(item.rg)}" />
+            </div>
+            <div class="form-group full">
+              <label>Observações</label>
+              <input name="obs" class="form-control" value="${escapeHtml(item.obs)}" />
+            </div>
+          </form>`,
+          `<button class="btn" onclick="document.getElementById('modalCloseBtn').click()">Cancelar</button>
+           <button id="btnSaveSocio" class="btn btn-primary">Salvar Sócio</button>`
+        );
+
+        document.getElementById("btnSaveSocio").onclick = async () => {
+          const form = document.getElementById("socioForm");
+          if (!form.reportValidity()) return;
+          const fd = new FormData(form);
+          const data = {
+            nome: fd.get("nome").trim(),
+            qualificacao: fd.get("qualificacao").trim(),
+            participacao: fd.get("participacao").trim(),
+            cpf: fd.get("cpf").trim(),
+            dataNascimento: fd.get("dataNascimento"),
+            govBrSenha: fd.get("govBrSenha"),
+            govBrNivel: fd.get("govBrNivel"),
+            reciboIrpf: fd.get("reciboIrpf").trim(),
+            tituloEleitor: fd.get("tituloEleitor").trim(),
+            rg: fd.get("rg").trim(),
+            obs: fd.get("obs").trim()
+          };
+          if (existing) {
+            Object.assign(existing, data);
+          } else {
+            client.socios = client.socios || [];
+            client.socios.push({ id: uid(), ...data });
+          }
+          await saveState();
+          closeModal();
+          renderAll();
+          showToast("Sócio salvo!", "success");
+        };
+      }
+
+      function openExtraModal(clientId) {
+        const client = state.clients.find(c => c.id === clientId);
+        if (!client) return;
+        openModal(
+          "Novo Campo Personalizado (Snippet)",
+          `<form id="extraForm" class="form-grid">
+            <div class="form-group full">
+              <label>Nome do Campo (Chave) *</label>
+              <input name="chave" class="form-control" required placeholder="Ex: Código DTE, Inscrição SUFRAMA, Token API..." />
+            </div>
+            <div class="form-group full">
+              <label>Valor *</label>
+              <input name="valor" class="form-control mono" required />
+            </div>
+            <div class="form-group full">
+              <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+                <input name="sensivel" type="checkbox" />
+                Tratar como dado sigiloso (ocultar no Modo Privacidade)
+              </label>
+            </div>
+          </form>`,
+          `<button class="btn" onclick="document.getElementById('modalCloseBtn').click()">Cancelar</button>
+           <button id="btnSaveExtra" class="btn btn-primary">Adicionar Campo</button>`
+        );
+
+        document.getElementById("btnSaveExtra").onclick = async () => {
+          const form = document.getElementById("extraForm");
+          if (!form.reportValidity()) return;
+          const fd = new FormData(form);
+          client.camposExtras = client.camposExtras || [];
+          client.camposExtras.push({
+            id: uid(),
+            chave: fd.get("chave").trim(),
+            valor: fd.get("valor").trim(),
+            sensivel: fd.get("sensivel") === "on"
+          });
+          await saveState();
+          closeModal();
+          renderAll();
+          showToast("Campo extra adicionado!", "success");
+        };
+      }
+
+      // ---------- BACKUP & EXPORT ----------
+      function openBackupModal() {
+        const totalSizeKb = (new Blob([JSON.stringify(state)]).size / 1024).toFixed(1);
+        openModal(
+          "Backup, Exportação e Restauração",
+          `<div style="display:flex; flex-direction:column; gap:12px;">
+            <div style="font-size:13px; color:var(--text-muted);">
+              Seus dados ficam armazenados exclusivamente no <code>localStorage</code> deste navegador (${totalSizeKb} KB).
+              Recomendamos baixar um backup JSON periodicamente para guardar no seu Google Drive ou servidor.
+            </div>
+            <div style="display:flex; gap:8px; flex-wrap:wrap;">
+              <button id="btnDoExportJson" class="btn btn-primary">⬇ Baixar Backup Completo (.json)</button>
+              <button id="btnDoExportCsv" class="btn">⬇ Exportar Resumo de Clientes (.csv)</button>
+              <button id="btnDoImportJson" class="btn btn-warning">⬆ Restaurar / Importar (.json)</button>
+            </div>
+            <hr style="border:none; border-top:1px solid var(--border); margin:4px 0;" />
+            <div style="display:flex; gap:8px; flex-wrap:wrap;">
+              <button id="btnLoadDemoData" class="btn btn-sm">Recarregar Dados de Exemplo</button>
+              <button id="btnWipeAllData" class="btn btn-sm btn-danger">Apagar Todos os Dados</button>
+            </div>
+          </div>`,
+          `<button class="btn" onclick="document.getElementById('modalCloseBtn').click()">Fechar</button>`
+        );
+
+        document.getElementById("btnDoExportJson").onclick = () => {
+          state.lastBackupAt = new Date().toISOString();
+          saveState();
+          const blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json" });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = `central-contabil-backup-${new Date().toISOString().slice(0, 10)}.json`;
+          a.click();
+          URL.revokeObjectURL(url);
+          showToast("Backup JSON exportado!", "success");
+        };
+
+        document.getElementById("btnDoExportCsv").onclick = () => {
+          const header = ["Codigo", "Razao Social", "Nome Fantasia", "CNPJ/CPF", "Regime", "Status", "IE", "IM", "Cod Simples", "Cod e-CAC", "Email", "Telefone"];
+          const csvRows = [header.join(";")];
+          state.clients.forEach(c => {
+            const cols = [
+              c.codigoInterno, c.razaoSocial, c.nomeFantasia, c.documento, c.regime, c.status,
+              c.inscricaoEstadual, c.inscricaoMunicipal, c.codigoSimples, c.codigoEcac, c.email, c.telefone
+            ].map(v => `"${String(v || "").replace(/"/g, '""')}"`);
+            csvRows.push(cols.join(";"));
+          });
+          const blob = new Blob(["\uFEFF" + csvRows.join("\n")], { type: "text/csv;charset=utf-8;" });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = `clientes-contabeis-${new Date().toISOString().slice(0, 10)}.csv`;
+          a.click();
+          URL.revokeObjectURL(url);
+          showToast("Planilha CSV exportada!", "success");
+        };
+
+        document.getElementById("btnDoImportJson").onclick = () => {
+          document.getElementById("hiddenFileInput").click();
+        };
+
+        document.getElementById("btnLoadDemoData").onclick = async () => {
+          if (!confirm("Substituir os dados atuais pelos 3 clientes de exemplo?")) return;
+          state = buildDemoState();
+          uiState.selectedClientId = state.clients[0]?.id || null;
+          await saveState();
+          closeModal();
+          renderAll();
+          showToast("Dados de exemplo carregados.", "success");
+        };
+
+        document.getElementById("btnWipeAllData").onclick = async () => {
+          if (!confirm("Tem certeza que deseja APAGAR TODOS os clientes e senhas salvos? Faça um backup antes!")) return;
+          state.clients = [];
+          state.isDemo = false;
+          uiState.selectedClientId = null;
+          await saveState();
+          closeModal();
+          renderAll();
+          showToast("Todos os dados foram apagados.", "warning");
+        };
+      }
+
+      // ---------- SECURITY MODAL (AES-GCM MASTER PASSWORD) ----------
+      function openSecurityModal() {
+        const hasMaster = !!activeMasterPassword;
+        openModal(
+          "Cofre Criptografado (Senha Mestra AES-256-GCM)",
+          `<div style="display:flex; flex-direction:column; gap:12px;">
+            <div style="font-size:13px; color:var(--text-muted);">
+              ${hasMaster
+                ? "Seu cofre está <strong>protegido com criptografia AES-256-GCM</strong>. Você pode bloquear a tela agora, alterar ou remover a senha mestra."
+                : "Defina uma Senha Mestra opcional para criptografar todos os dados salvos no <code>localStorage</code> usando Web Crypto API (PBKDF2 + AES-GCM)."}
+            </div>
+            <form id="secForm" class="form-grid">
+              <div class="form-group full">
+                <label>${hasMaster ? "Nova Senha Mestra (deixe em branco para manter)" : "Definir Senha Mestra"}</label>
+                <input name="pass1" type="password" class="form-control" placeholder="Mínimo 4 caracteres" />
+              </div>
+              <div class="form-group full">
+                <label>Confirmar Senha Mestra</label>
+                <input name="pass2" type="password" class="form-control" />
+              </div>
+            </form>
+            <div style="display:flex; gap:8px; flex-wrap:wrap;">
+              ${hasMaster ? `<button id="btnLockNow" class="btn btn-warning">🔒 Bloquear Tela Agora</button>` : ""}
+              ${hasMaster ? `<button id="btnRemoveMaster" class="btn btn-danger">Remover Criptografia</button>` : ""}
+            </div>
+          </div>`,
+          `<button class="btn" onclick="document.getElementById('modalCloseBtn').click()">Fechar</button>
+           <button id="btnSaveMasterPass" class="btn btn-primary">Salvar Senha Mestra</button>`
+        );
+
+        if (hasMaster) {
+          document.getElementById("btnLockNow").onclick = () => {
+            closeModal();
+            lockVaultNow();
+          };
+          document.getElementById("btnRemoveMaster").onclick = async () => {
+            if (!confirm("Desativar a Senha Mestra e salvar os dados sem criptografia no localStorage?")) return;
+            activeMasterPassword = null;
+            localStorage.removeItem(CRYPTO_KEY);
+            await saveState();
+            closeModal();
+            renderAll();
+            showToast("Senha Mestra removida.", "warning");
+          };
+        }
+
+        document.getElementById("btnSaveMasterPass").onclick = async () => {
+          const form = document.getElementById("secForm");
+          const fd = new FormData(form);
+          const p1 = String(fd.get("pass1") || "");
+          const p2 = String(fd.get("pass2") || "");
+          if (p1.length < 4) return showToast("Digite uma senha com pelo menos 4 caracteres.", "warning");
+          if (p1 !== p2) return showToast("As senhas não coincidem.", "danger");
+          activeMasterPassword = p1;
+          await saveState();
+          closeModal();
+          renderAll();
+          showToast("Cofre criptografado com Senha Mestra!", "success");
+        };
+      }
+
+      function lockVaultNow() {
+        if (!localStorage.getItem(CRYPTO_KEY)) {
+          return showToast("Configure uma Senha Mestra em 'Cofre' primeiro.", "warning");
+        }
+        activeMasterPassword = null;
+        state = null;
+        document.getElementById("unlockPasswordInput").value = "";
+        document.getElementById("unlockError").style.display = "none";
+        document.getElementById("lockOverlay").classList.add("open");
+      }
+
+      // ---------- SMART CAPTURE PARSER ----------
+      function parseRawText(text) {
+        const cnpjs = [...new Set((text.match(/\b\d{2}\.?\d{3}\.?\d{3}\/?\d{4}-?\d{2}\b/g) || []).map(v => formatCnpjCpf(v)))];
+        const cpfs = [...new Set((text.match(/\b\d{3}\.?\d{3}\.?\d{3}-?\d{2}\b/g) || []).filter(v => onlyDigits(v).length === 11).map(v => formatCnpjCpf(v)))];
+        const emails = [...new Set(text.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g) || [])];
+        const phones = [...new Set(text.match(/(?:\+55\s?)?(?:\(?\d{2}\)?\s?)?\d{4,5}-\d{4}/g) || [])];
+        const dates = [...new Set(text.match(/\b\d{2}\/\d{2}\/\d{4}\b/g) || [])];
+
+        const ieMatch = text.match(/(?:IE|Inscri[cç][aã]o\s+Estadual)\s*[:=\-]?\s*([0-9.\-\/]{6,20})/i);
+        const imMatch = text.match(/(?:IM|CCM|Inscri[cç][aã]o\s+Municipal)\s*[:=\-]?\s*([0-9.\-\/]{4,20})/i);
+        const simplesMatch = text.match(/(?:C[oó]d(?:igo)?\s*(?:do\s*)?Simples(?:\s+Nacional)?)\s*[:=\-]?\s*(\d{8,16})/i);
+        const ecacMatch = text.match(/(?:C[oó]d(?:igo)?\s*e-?CAC)\s*[:=\-]?\s*(\d{8,16})/i);
+
+        const secrets = [];
+        const lines = text.split(/\r?\n/);
+        lines.forEach(line => {
+          const m = line.match(/(?:senha|pass|pin|puk|gov\.?br|acesso)\s*[:=\-]?\s*([^\s|,;]{3,40})/gi);
+          if (m) {
+            m.forEach(token => secrets.push({ context: line.trim(), token: token.trim() }));
+          }
+        });
+
+        const firstLine = lines.map(l => l.trim()).find(l => l.length > 3 && !/^\d+$/.test(l)) || "";
+        const companyGuess = firstLine.replace(/^(Empresa|Cliente|Raz[aã]o\s*Social)\s*[:=\-]\s*/i, "").trim();
+
+        return {
+          companyGuess,
+          cnpjs,
+          cpfs,
+          emails,
+          phones,
+          dates,
+          ie: ieMatch ? ieMatch[1].trim() : "",
+          im: imMatch ? imMatch[1].trim() : "",
+          codigoSimples: simplesMatch ? simplesMatch[1].trim() : "",
+          codigoEcac: ecacMatch ? ecacMatch[1].trim() : "",
+          secrets
+        };
+      }
+
+      function renderCaptureResults(parsed, rawText) {
+        const resEl = document.getElementById("captureResults");
+        const badgeEl = document.getElementById("captureCountBadge");
+        const count = parsed.cnpjs.length + parsed.cpfs.length + parsed.emails.length + parsed.secrets.length + (parsed.ie ? 1 : 0) + (parsed.im ? 1 : 0);
+        badgeEl.textContent = `${count} itens detectados`;
+
+        const chips = [];
+        if (parsed.companyGuess) chips.push({ k: "Possível Razão Social", v: parsed.companyGuess });
+        parsed.cnpjs.forEach((v, i) => chips.push({ k: `CNPJ ${i + 1}`, v }));
+        parsed.cpfs.forEach((v, i) => chips.push({ k: `CPF ${i + 1}`, v }));
+        if (parsed.ie) chips.push({ k: "Inscrição Estadual", v: parsed.ie });
+        if (parsed.im) chips.push({ k: "Inscrição Municipal", v: parsed.im });
+        if (parsed.codigoSimples) chips.push({ k: "Código Simples", v: parsed.codigoSimples });
+        if (parsed.codigoEcac) chips.push({ k: "Código e-CAC", v: parsed.codigoEcac });
+        parsed.emails.forEach((v, i) => chips.push({ k: `E-mail ${i + 1}`, v }));
+        parsed.phones.forEach((v, i) => chips.push({ k: `Telefone ${i + 1}`, v }));
+        parsed.dates.forEach((v, i) => chips.push({ k: `Data ${i + 1}`, v }));
+
+        resEl.innerHTML = `
+          <div style="display:flex; flex-direction:column; gap:8px; margin-bottom:14px;">
+            ${chips.map(ch => `
+              <div class="data-row">
+                <span class="data-row-label">${escapeHtml(ch.k)}</span>
+                <span class="data-row-value">${escapeHtml(ch.v)}</span>
+                <button class="btn btn-xs" data-copy-val="${escapeHtml(ch.v)}" data-copy-lbl="${escapeHtml(ch.k)}">Copiar</button>
+              </div>
+            `).join("")}
+            ${parsed.secrets.map((s, idx) => `
+              <div class="data-row" style="border-color:rgba(245,158,11,0.4);">
+                <span class="data-row-label" style="color:var(--warning);">Possível Senha/PIN ${idx + 1}</span>
+                <span class="data-row-value">${escapeHtml(s.context)}</span>
+                <button class="btn btn-xs btn-warning" data-copy-val="${escapeHtml(s.token.split(/[:=\s]+/).pop())}" data-copy-lbl="Possível Senha">Copiar</button>
+              </div>
+            `).join("")}
+          </div>
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <button id="btnCreateFromCapture" class="btn btn-primary">Criar Novo Cliente com Esses Dados</button>
+            ${state.clients.length ? `<button id="btnAppendNotesCapture" class="btn">Anexar Texto às Notas do Cliente Selecionado</button>` : ""}
+          </div>
+        `;
+
+        document.getElementById("btnCreateFromCapture").onclick = () => {
+          const prefill = {
+            razaoSocial: parsed.companyGuess,
+            documento: parsed.cnpjs[0] || parsed.cpfs[0] || "",
+            inscricaoEstadual: parsed.ie,
+            inscricaoMunicipal: parsed.im,
+            codigoSimples: parsed.codigoSimples,
+            codigoEcac: parsed.codigoEcac,
+            email: parsed.emails[0] || "",
+            telefone: parsed.phones[0] || "",
+            observacoes: "Importado via Captura Rápida:\n" + rawText,
+            socios: parsed.cpfs.map((cpf, i) => ({
+              id: uid(),
+              nome: `Responsável / Sócio ${i + 1} (editar nome)`,
+              qualificacao: "Sócio",
+              cpf,
+              dataNascimento: "",
+              rg: "", tituloEleitor: "", reciboIrpf: "", govBrSenha: "", govBrNivel: "Não informado", participacao: "", obs: ""
+            }))
+          };
+          openClientModal(null, prefill);
+        };
+
+        const appendBtn = document.getElementById("btnAppendNotesCapture");
+        if (appendBtn) {
+          appendBtn.onclick = async () => {
+            const target = state.clients.find(c => c.id === uiState.selectedClientId) || state.clients[0];
+            if (!target) return;
+            target.observacoes = (target.observacoes ? target.observacoes + "\n\n" : "") + "[Captura Rápida]\n" + rawText;
+            await saveState();
+            uiState.selectedClientId = target.id;
+            switchView("clients");
+            renderAll();
+            showToast(`Texto anexado às notas de ${target.nomeFantasia || target.razaoSocial}!`, "success");
+          };
+        }
+      }
+
+      // ---------- VIEW SWITCHING ----------
+      function switchView(viewName) {
+        uiState.activeView = viewName;
+        document.querySelectorAll(".nav-tab").forEach(tab => {
+          tab.classList.toggle("active", tab.dataset.view === viewName);
+        });
+        document.querySelectorAll(".view-section").forEach(sec => {
+          sec.classList.toggle("active", sec.id === "view-" + viewName);
+        });
+        if (viewName === "vault") renderVaultView();
+        if (viewName === "radar") renderRadarView();
+      }
+
+      // ---------- EVENT LISTENERS ----------
+      function bindEvents() {
+        // Navigation tabs
+        document.querySelectorAll(".nav-tab").forEach(btn => {
+          btn.addEventListener("click", () => switchView(btn.dataset.view));
+        });
+
+        // Search
+        const searchInput = document.getElementById("globalSearch");
+        searchInput.addEventListener("input", (e) => {
+          uiState.searchQuery = e.target.value;
+          if (uiState.activeView !== "clients") switchView("clients");
+          renderClientList();
+          renderClientDetail();
+        });
+
+        // Keyboard shortcuts
+        document.addEventListener("keydown", (e) => {
+          if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
+            e.preventDefault();
+            searchInput.focus();
+            searchInput.select();
+          } else if (e.key === "/" && !["INPUT", "TEXTAREA", "SELECT"].includes(document.activeElement.tagName)) {
+            e.preventDefault();
+            searchInput.focus();
+          } else if (e.altKey && e.key.toLowerCase() === "p") {
+            e.preventDefault();
+            document.getElementById("btnPrivacy").click();
+          } else if (e.altKey && e.key.toLowerCase() === "l") {
+            e.preventDefault();
+            if (localStorage.getItem(CRYPTO_KEY)) lockVaultNow();
+            else openSecurityModal();
+          } else if (e.key === "Escape") {
+            closeModal();
+          }
+        });
+
+        // Regime filters
+        document.getElementById("regimeFilters").addEventListener("click", (e) => {
+          const pill = e.target.closest(".pill");
+          if (!pill) return;
+          document.querySelectorAll("#regimeFilters .pill").forEach(p => p.classList.remove("active"));
+          pill.classList.add("active");
+          uiState.regimeFilter = pill.dataset.regime;
+          renderClientList();
+          renderClientDetail();
+        });
+
+        document.getElementById("statusFilter").addEventListener("change", (e) => {
+          uiState.statusFilter = e.target.value;
+          renderClientList();
+          renderClientDetail();
+        });
+
+        // Topbar buttons
+        document.getElementById("btnCopyFormatToggle").addEventListener("click", async () => {
+          state.settings.defaultCopyClean = !state.settings.defaultCopyClean;
+          await saveState();
+          applySettingsToDOM(state.settings);
+          showToast(state.settings.defaultCopyClean ? "Padrão: Copiar só números." : "Padrão: Copiar formatado.", "info");
+        });
+
+        document.getElementById("btnPrivacy").addEventListener("click", async () => {
+          state.settings.privacyBlurMode = !state.settings.privacyBlurMode;
+          await saveState();
+          applySettingsToDOM(state.settings);
+        });
+
+        document.getElementById("btnTheme").addEventListener("click", async () => {
+          state.settings.theme = state.settings.theme === "light" ? "dark" : "light";
+          await saveState();
+          applySettingsToDOM(state.settings);
+        });
+
+        document.getElementById("btnSecurity").addEventListener("click", openSecurityModal);
+        document.getElementById("btnBackupMenu").addEventListener("click", openBackupModal);
+        document.getElementById("btnNewClient").addEventListener("click", () => openClientModal(null));
+
+        // Demo banner
+        document.getElementById("btnClearDemo").addEventListener("click", async () => {
+          state.clients = [];
+          state.isDemo = false;
+          uiState.selectedClientId = null;
+          await saveState();
+          renderAll();
+          showToast("Dados de exemplo removidos. Pronto para seus clientes!", "success");
+        });
+        document.getElementById("btnDismissBanner").addEventListener("click", async () => {
+          state.demoBannerDismissed = true;
+          await saveState();
+          renderAll();
+        });
+
+        // Vault filters
+        document.getElementById("vaultCategoryFilter").addEventListener("change", (e) => {
+          uiState.vaultCategory = e.target.value;
+          renderVaultView();
+        });
+        document.getElementById("vaultSearchInput").addEventListener("input", (e) => {
+          uiState.vaultSearch = e.target.value;
+          renderVaultView();
+        });
+
+        // Smart Capture buttons
+        document.getElementById("btnAnalyzeCapture").addEventListener("click", () => {
+          const text = document.getElementById("captureInput").value.trim();
+          if (!text) return showToast("Cole algum texto primeiro.", "warning");
+          renderCaptureResults(parseRawText(text), text);
+        });
+        document.getElementById("btnCaptureSample").addEventListener("click", () => {
+          const sample = `Empresa Beta Logística Ltda\nCNPJ: 67.890.123/0001-45 | IE: 118.222.333.444 | IM: 998877-1\nCódigo Simples: 556677889900\nE-mail: fiscal@betalog.com.br | Tel: (11) 99111-2233\nPrefeitura senha: Beta#Log2026\nSócio: João Pedro Souza CPF 333.444.555-66 Nasc: 10/07/1980 govbr: Joao@Log80`;
+          document.getElementById("captureInput").value = sample;
+          renderCaptureResults(parseRawText(sample), sample);
+        });
+        document.getElementById("btnCaptureClear").addEventListener("click", () => {
+          document.getElementById("captureInput").value = "";
+          document.getElementById("captureCountBadge").textContent = "Aguardando texto";
+          document.getElementById("captureResults").innerHTML = `<div class="empty-state" style="padding:28px;">Cole um texto ao lado e clique em <strong>Analisar e Extrair Dados</strong>.</div>`;
+        });
+
+        // Modal close
+        document.getElementById("modalCloseBtn").addEventListener("click", closeModal);
+        document.getElementById("modalBackdrop").addEventListener("click", (e) => {
+          if (e.target.id === "modalBackdrop") closeModal();
+        });
+
+        // Import JSON file
+        document.getElementById("hiddenFileInput").addEventListener("change", (e) => {
+          const file = e.target.files[0];
+          if (!file) return;
+          const reader = new FileReader();
+          reader.onload = async (ev) => {
+            try {
+              const imported = JSON.parse(ev.target.result);
+              if (!imported || !Array.isArray(imported.clients)) {
+                throw new Error("Arquivo inválido");
+              }
+              state = imported;
+              state.isDemo = false;
+              if (!state.settings) state.settings = { defaultCopyClean: true, privacyBlurMode: false, theme: "dark" };
+              uiState.selectedClientId = state.clients[0]?.id || null;
+              await saveState();
+              closeModal();
+              renderAll();
+              showToast(`Backup restaurado (${state.clients.length} clientes)!`, "success");
+            } catch {
+              showToast("Arquivo JSON inválido ou incompatível.", "danger");
+            }
+            e.target.value = "";
+          };
+          reader.readAsText(file);
+        });
+
+        // Unlock form
+        document.getElementById("unlockForm").addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const pwd = document.getElementById("unlockPasswordInput").value;
+          const errEl = document.getElementById("unlockError");
+          try {
+            const payload = JSON.parse(localStorage.getItem(CRYPTO_KEY));
+            state = await decryptState(payload, pwd);
+            activeMasterPassword = pwd;
+            errEl.style.display = "none";
+            document.getElementById("lockOverlay").classList.remove("open");
+            uiState.selectedClientId = state.clients[0]?.id || null;
+            renderAll();
+            showToast("Cofre desbloqueado!", "success");
+          } catch {
+            errEl.style.display = "block";
+          }
+        });
+
+        // Global Delegated Clicks
+        document.addEventListener("click", async (e) => {
+          // Quick copy doc from client list
+          const qcd = e.target.closest("[data-quick-copy-doc]");
+          if (qcd) {
+            e.stopPropagation();
+            const c = state.clients.find(x => x.id === qcd.dataset.quickCopyDoc);
+            if (c) copyDocSmart(c.documento, c.nomeFantasia || c.razaoSocial);
+            return;
+          }
+
+          // Select client in list
+          const sel = e.target.closest("[data-select-client]");
+          if (sel) {
+            uiState.selectedClientId = sel.dataset.selectClient;
+            renderClientList();
+            renderClientDetail();
+            return;
+          }
+
+          // Jump to client from Vault / Radar
+          const jump = e.target.closest("[data-jump-client]");
+          if (jump) {
+            uiState.selectedClientId = jump.dataset.jumpClient;
+            switchView("clients");
+            renderClientList();
+            renderClientDetail();
+            return;
+          }
+
+          // Generic copy button
+          const copyBtn = e.target.closest("[data-copy-val]");
+          if (copyBtn) {
+            copyText(copyBtn.dataset.copyVal, copyBtn.dataset.copyLbl || "Dado");
+            return;
+          }
+
+          // Toggle secret visibility
+          const togBtn = e.target.closest("[data-toggle-secret]");
+          if (togBtn) {
+            const k = togBtn.dataset.toggleSecret;
+            if (uiState.revealedSecrets.has(k)) uiState.revealedSecrets.delete(k);
+            else uiState.revealedSecrets.add(k);
+            if (uiState.activeView === "vault") renderVaultView();
+            else renderClientDetail();
+            return;
+          }
+
+          // Empty state new client
+          if (e.target.id === "btnEmptyNewClient") {
+            openClientModal(null);
+            return;
+          }
+
+          // CRUD actions
+          const actBtn = e.target.closest("[data-action]");
+          if (!actBtn) return;
+          const act = actBtn.dataset.action;
+          const cid = actBtn.dataset.cid || actBtn.dataset.id;
+          const itemId = actBtn.dataset.itemId;
+          const client = state.clients.find(c => c.id === cid);
+          if (!client) return;
+
+          if (act === "toggle-fav") {
+            client.favorite = !client.favorite;
+            await saveState();
+            renderAll();
+          } else if (act === "edit-client") {
+            openClientModal(client);
+          } else if (act === "duplicate-client") {
+            const clone = JSON.parse(JSON.stringify(client));
+            clone.id = uid();
+            clone.razaoSocial = clone.razaoSocial + " (Cópia)";
+            state.clients.unshift(clone);
+            uiState.selectedClientId = clone.id;
+            await saveState();
+            renderAll();
+            showToast("Cliente duplicado!", "success");
+          } else if (act === "delete-client") {
+            if (!confirm(`Excluir permanentemente o cliente "${client.razaoSocial}"?`)) return;
+            state.clients = state.clients.filter(c => c.id !== cid);
+            if (uiState.selectedClientId === cid) uiState.selectedClientId = state.clients[0]?.id || null;
+            await saveState();
+            renderAll();
+            showToast("Cliente excluído.", "warning");
+          } else if (act === "add-cred") {
+            openCredModal(cid, null);
+          } else if (act === "edit-cred") {
+            openCredModal(cid, (client.credenciais || []).find(x => x.id === itemId));
+          } else if (act === "del-cred") {
+            if (!confirm("Remover esta credencial?")) return;
+            client.credenciais = (client.credenciais || []).filter(x => x.id !== itemId);
+            await saveState();
+            renderAll();
+          } else if (act === "add-cert") {
+            openCertModal(cid, null);
+          } else if (act === "edit-cert") {
+            openCertModal(cid, (client.certificados || []).find(x => x.id === itemId));
+          } else if (act === "del-cert") {
+            if (!confirm("Remover este certificado/procuração?")) return;
+            client.certificados = (client.certificados || []).filter(x => x.id !== itemId);
+            await saveState();
+            renderAll();
+          } else if (act === "add-socio") {
+            openSocioModal(cid, null);
+          } else if (act === "edit-socio") {
+            openSocioModal(cid, (client.socios || []).find(x => x.id === itemId));
+          } else if (act === "del-socio") {
+            if (!confirm("Remover este sócio/responsável?")) return;
+            client.socios = (client.socios || []).filter(x => x.id !== itemId);
+            await saveState();
+            renderAll();
+          } else if (act === "add-extra") {
+            openExtraModal(cid);
+          } else if (act === "del-extra") {
+            client.camposExtras = (client.camposExtras || []).filter(x => x.id !== itemId);
+            await saveState();
+            renderAll();
+          }
+        });
+
+        // Auto-save inline notes
+        let notesTimer = null;
+        document.addEventListener("input", (e) => {
+          if (e.target.id !== "inlineClientNotes") return;
+          const cid = e.target.dataset.notesCid;
+          const client = state.clients.find(c => c.id === cid);
+          if (!client) return;
+          client.observacoes = e.target.value;
+          clearTimeout(notesTimer);
+          notesTimer = setTimeout(() => { saveState(); }, 400);
+        });
+      }
+
+      // ---------- BOOTSTRAP ----------
+      bindEvents();
+      if (loadInitialStateSync()) {
+        uiState.selectedClientId = state.clients[0]?.id || null;
+        renderAll();
+      }
+    })();
+  </script>
+</body>
+</html>
